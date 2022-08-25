@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { getHeaders } from "../components/mihoyoAPI";
 import { render } from "../components/render";
 import { IMessageEx } from "../system/IMessageEx";
 import log from "../system/logger";
@@ -45,7 +46,10 @@ export async function ledgerPart(msg: IMessageEx) {
     }
 
 
-
+    /**
+     * TODO
+     * 统一API后，getHeaders函数不导出，目前暂时使用
+     */
     const headers = getHeaders(`month=${month}&bind_uid=${uid}&bind_region=${region}`) as any;
     headers.Cookie = cookie;
     const data = await getLedger(headers, month, uid, region).catch(err => {
@@ -110,7 +114,6 @@ export async function ledgerPart(msg: IMessageEx) {
     }
 }
 
-
 export async function ledgerCount(msg: IMessageEx) {
     //获取cookie
 
@@ -129,6 +132,10 @@ export async function ledgerCount(msg: IMessageEx) {
     }
 
     const nowMonth = new Date().getMonth();
+    /**
+     * TODO
+     * 统一API后，getHeaders函数不导出，目前暂时使用
+     */
     const headers = getHeaders(`month=${nowMonth}&bind_uid=${uid}&bind_region=${region}`) as any;
     headers.Cookie = cookie;
 
@@ -299,6 +306,3 @@ interface LedgerData {
     lantern: false;
 };
 
-function getHeaders(arg0: string): any {
-    throw new Error("Function not implemented.");
-}

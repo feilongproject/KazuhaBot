@@ -251,7 +251,7 @@ export async function miGetEmoticon() {
     };
 } */
 
-function getHeaders(query = '', body = '', sign = false) {
+export function getHeaders(query = '', body = '', sign = false) {
     if (sign) return {
         'x-rpc-app_version': '2.3.0',
         'x-rpc-client_type': "5",
