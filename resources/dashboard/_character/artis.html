@@ -1,0 +1,40 @@
+{{extend elemLayout}}
+
+{{block 'css'}}
+<link rel="stylesheet" type="text/css" href="{{_res_path}}/character/detail.css"/>
+<link rel="stylesheet" type="text/css" href="{{_res_path}}/character/artis.css"/>
+{{/block}}
+
+{{block 'main'}}
+<div class="uid">UID {{uid}}</div>
+
+<div class="artis">
+
+  {{each artis ds}}
+  <div class="item arti">
+    {{if ds && ds.name && ds.main && ds.main.title && ds.main.title!="undefined"}}
+    <div class="avatar">
+      <img src="{{_res_path}}meta/character/{{ds.avatar}}/side_2.png" onerror="whenError(this)"/>
+    </div>
+    <div class="arti-icon">
+      <img src="{{_res_path}}/meta/reliquaries/icon/{{ds.name}}.png"/>
+    </div>
+    <div class="head">
+      <strong>{{ds.name}}</strong>
+      <span class="mark mark-{{ds.markClass}}"><span>{{ds.mark}}分</span> - {{ds.markClass}}</span>
+    </div>
+    <ul class="detail attr">
+      <li class="arti-main"><span class="title">{{ds.main.title}}</span><span class="val">+{{ds.main.val}}</span></li>
+      {{each ds.attrs attr}}
+      {{if attr.title}}
+      <li class="{{ds.usefulMark[attr.title]*1 > 79.9 ?`great`:(ds.usefulMark[attr.title]*1>0 ? `useful`:`nouse`)}}">
+        <span class="title">{{attr.title}}</span><span
+          class="val">+{{attr.val}}</span></li>
+      {{/if}}
+      {{/each}}
+    </ul>
+    {{/if}}
+  </div>
+  {{/each}}
+</div>
+{{/block}}

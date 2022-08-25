@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <link rel="shortcut icon" href="#" />
+    <link rel="stylesheet" type="text/css"
+        href="{{resPath}}/genshin/dailyNote/Template/{{template}}/{{template}}.css?v=1.0" />
+</head>
+
+<body>
+    <div class="container" id="container"
+        style=" background-image: url({{resPath}}/genshin/dailyNote/Template/{{template}}/icon/bg/{{imgs}});">
+        <div class="left_model">
+            <div class="list">
+                <div class="div">
+                    <img src="{{resPath}}/genshin/dailyNote/icon/树脂.png" alt="">
+                </div>
+                <div class="div">
+                    <span class="title light">原粹树脂</span>
+                    <div class="kb"></div>
+                    <span class="bottom">
+                        <span class="time">
+                            {{resinTime.content}}
+                        </span>
+                </div>
+                <div class="div sumCount">
+                    <span class="{{if resinTime.now>=159}}red{{/if}}">{{resinTime.now}}</span>/{{resinTime.max}}
+                </div>
+            </div>
+            <div class="list">
+                <div class="div">
+                    <img src="{{resPath}}/genshin/dailyNote/icon/洞天宝钱.png" alt="">
+                </div>
+                <div class="div">
+                    <span class="title light">洞天宝钱</span>
+                    <div class="kb"></div>
+                    <span class="bottom">
+                        {{homeCoin.content}}
+                    </span>
+                </div>
+                <div class="div sumCount">
+                    <!-- /{{max_home_coin}} -->
+                    <span
+                        class="{{if homeCoin.now/homeCoin.max > 0.9}}red{{/if}}">{{homeCoin.now}}/{{homeCoin.max}}</span>
+
+                </div>
+            </div>
+            <div class="list">
+                <div class="div">
+                    <img src="{{resPath}}/genshin/dailyNote/icon/每日.png" alt="">
+                </div>
+                <div class="div">
+                    <span class="title light">每日委托</span>
+                    <div class="kb"></div>
+                    <span class="bottom">今日委托奖励{{if task.received==true}}已{{else}}未{{/if}}领取</span>
+                </div>
+                <div class="div sumCount">
+                    <span class="{{if finished_task_num<4}}red{{/if}}">{{task.finish}}</span>/{{task.total}}
+                </div>
+            </div>
+            <div class="list">
+                <div class="div">
+                    <img src="{{resPath}}/genshin/dailyNote/icon/周本.png" alt="">
+                </div>
+                <div class="div">
+                    <span class="title light">值得铭记的强敌</span>
+                    <div class="kb"></div>
+                    <span class="bottom">本周剩余消耗减半次数</span>
+                </div>
+                <div class="div sumCount">
+                    <span class="{{if cutHalf.now>0}}red{{/if}}">{{cutHalf.now}}</span>/{{cutHalf.total}}
+                </div>
+            </div>
+            <div class="list">
+                <div class="div">
+                    <img src="{{resPath}}/genshin/dailyNote/icon/质变仪.png" alt="">
+                </div>
+                <div class="div">
+                    <span class="title light">参量质变仪</span>
+                    <div class="kb"></div>
+                    <span class="bottom">
+                        {{if transformer.has }}
+                        {{if transformer.reached}}已准备完成
+                        {{else}}预计<span class="time">{{transformer.content}}</span>后可使用{{/if}}
+                        {{else}}尚未获得{{/if}}
+                        <!-- {{coinTime_mb2Day}}<span class="time">{{coinTime_mb2}}</span>恢复 -->
+                    </span>
+                </div>
+                <div class="div sumCount">
+                    <span class="{{if transformer.has && transformer.reached }}red{{/if}}">
+                        {{if transformer.has }}{{if transformer.reached}}可使用
+                        {{else}}冷却中{{/if}}
+                        {{else}}尚未获得{{/if}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="right_model">
+            <div class="uId light">
+                UID:{{uid}}
+            </div>
+            <div class="head_image">
+                {{each expeditions list}}
+                <div class="li">
+                    <!-- <div class="circleProgress_wrapper">
+                            <div class="wrapper right">
+                                <div class="circleProgress rightcircle"></div>
+                            </div>
+                            <div class="wrapper left">
+                                <div class="circleProgress leftcircle"></div>
+                            </div>
+                        </div> -->
+                    <div class="jdt">
+                        <img src="{{resPath}}/genshin/dailyNote/Template/{{template}}/speed/{{list.schedule}}.png" />
+                    </div>
+                    <div class="icon {{list.icon==''?'user_null':''}}">
+                        {{if list.icon==''}}
+                        <img src="{{resPath}}/genshin/dailyNote/icon/角色.png" style="width: 60px;height: 60px;"
+                            alt="" />{{else}}
+                        <img src="{{list.icon}}" alt="">{{/if}}
+                    </div>
+                    <div class="text" style="top:{{list.remain==0?'30%':'20%'}}">
+                        {{if list.icon==''}}
+                        <span>未派遣</span>
+                        {{else}}
+                        <span>{{if list.remain==0}}已完成
+                            {{else}}{{list.content}}{{/if}}</span>
+                        {{/if}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+
+            <div class="bottom_list">
+                <div class="bottom_time light">
+                    {{day}}
+                </div>
+                <!-- <div class="bottom_image">
+                        <img src="{{resPath}}/dailyNote/icon/图片.png" alt="">
+                    </div> -->
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>

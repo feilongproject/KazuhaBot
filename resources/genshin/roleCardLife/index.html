@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+  <link rel="shortcut icon" href="#" />
+  <link rel="stylesheet" type="text/css" href="{{resPath}}/genshin/roleCardLife/life.css?v=1.0" />
+  <link rel="preload" href="{{resPath}}/font/tttgbnumber.ttf" as="font">
+  <link rel="preload" href="{{resPath}}/genshin/roleCardLife/bg5.png" as="image">
+  <link rel="preload" href="{{resPath}}/genshin/roleCardLife/bg4.png" as="image">
+  <link rel="preload" href="{{resPath}}/genshin/roleCardLife/bg105.png" as="image">
+</head>
+
+<body {{ if avatars.length<=8}}class="list8" {{/if}}>
+  <style></style>
+  <div class="container" id="container">
+    <div class="main_box">
+      <div class="base_info">
+        <div class="uid">ID: {{uid}}</div>
+      </div>
+      <div class="item_box">
+        {{each avatars val}}
+        <div class="item">
+          <div class="role_box">
+            {{ if val.constellationNum>0}}
+            <span class="life life{{val.constellationNum}}"> {{val.constellationNum}}命</span>
+            {{/if}}
+            <div class="bg{{val.star}}"></div>
+            <img class="role_img" src="{{val.skinUrl}}" onerror="whenError(this)" />
+            <div class="desc">Lv.{{val.lv}}</div>
+          </div>
+          <div class="text_box">
+            <div class="weapon_box">
+              <div class="weapon_boder">
+                <img class="weapon_img" src="{{resPath}}/genshin/logo/weapon/{{val.weapon.name}}.png" />
+              </div>
+            </div>
+            <div class="weapon_name_box">
+              <div class="weapon_name">{{val.weapon.showName}}</div>
+              <div class="weapon_level">
+                Lv.{{val.weapon.lv}}{{ if val.weapon.affixLv>1}}
+                <span class="weapon_affix">{{val.weapon.affixLv}}</span>
+                {{/if}}
+              </div>
+            </div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript">
+  function whenError(a) {
+    // a.onerror = null;
+    // a.src = "{{resPath}}/genshin/logo/role/荧.png";
+  }
+</script>
+
+</html>

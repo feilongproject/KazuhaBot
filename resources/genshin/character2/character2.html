@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <link rel="shortcut icon" href="#" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{{_res_path}}/genshin/character2/character2.css?v=1.0"
+    />
+    <link rel="preload" href="{{_res_path}}/font/HYWenHei-55W.ttf" as="font">
+    <link rel="preload" href="{{_res_path}}/genshin/logo/bg2/{{name}}/{{randBg}}" as="image">
+    <link rel="preload" href="{{_res_path}}/genshin/character2/点.png" as="image">
+  </head>
+  <style>
+    .container {
+      background-image: url({{_res_path}}/genshin/logo/bg2/{{name}}/{{randBg}});
+      background-size: 100% 100%;
+    }
+  </style>
+  <body>
+    <div class="user-container container" id="container">
+      <div class="cover">
+        <div class="top">
+          <div class="user-info">
+            <div class="name-wrap">
+                <div class="name">{{showName}}</div>
+                <div class="level">Lv.{{level}}</div>
+            </div>
+            <div class="uid">ID：{{uid}}</div>
+          </div>
+        </div>
+        <div class="bottom">
+          <div class="info">
+            <div class="section active-days">
+                <div class="desc {{element}}"><div class="text">命之座</div></div>
+                <div class="val">{{actived_constellation_num}}命</div>
+            </div>
+            <div class="section achievement-number">
+                <div class="desc {{element}}"><div class="text">武器</div></div>
+                <div class="val">{{list[0].showName}}<span class="weapon-level">Lv.{{list[0].level}} </span>
+                  {{if list[0].affix_level>1}}
+                    <span class="weapon-affix bg_{{element}}">{{list[0].affix_level}}</span>
+                  {{/if}}
+                </div>
+            </div>
+            <div class="section world-exploration">
+                <div class="desc {{element}}"><div class="text">圣遗物</div></div>
+                {{if text1=="无套装效果" || set.length<= 0}}
+                  <div class="val relics">{{text1 || '无'}}</div>
+                {{else}}
+                  {{each set val}}
+                    {{if val.num>1}}
+                      <div class="val relics">{{val.showName}}<span>*{{val.num}}<span></div>
+                    {{/if}}
+                  {{/each}}
+                {{/if}}
+            </div>
+          </div>
+        </div>
+      <div>
+  </div>
+  </body>
+  <script type="text/javascript"></script>
+</html>
