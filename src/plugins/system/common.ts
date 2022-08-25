@@ -50,6 +50,20 @@ export function cacheJson<T>(opt: "w" | "r", app: string, data?: T): T | boolean
     }
 }
 
+export async function redisCache(type: "r" | "w", key: string, field: string, data?: string, expire?: number): Promise<string | null> {
+    if (type == "r") {
+        return await global.redis.hGet(key, field) || null;
+    };
+    if (type == "w") {
+        global.redis.hSet(key, field, data!).then(() => {
+            if (expire)
+                global.redis.expire(key, expire);
+        });
+
+    }
+    return null;
+}
+
 export const Format = {
     /**
      * string to number
@@ -74,24 +88,3 @@ export const Format = {
     }
 
 }
-
-
-/* 
-let Format = {
-  comma: function (num, fix = 0) {
-    num = parseFloat((num * 1).toFixed(fix))
-    let [integer, decimal] = String.prototype.split.call(num, '.')
-    integer = integer.replace(/\d(?=(\d{3})+$)/g, '$&,') // 正则先行断言
-    return `${integer}${decimal ? '.' + decimal : ''}`
-  },
-  pct: function (num, fix = 1) {
-    return (num * 1).toFixed(fix) + '%'
-  },
-  percent: function (num, fix = 1) {
-    return Format.pct(num * 100, fix)
-  }
-}
-
-export default Format
-
-*/

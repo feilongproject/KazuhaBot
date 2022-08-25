@@ -4,7 +4,6 @@ import fs from "fs";
 //const format = require("date-format");
 import { render } from "./render";
 import log from "../system/logger";
-import { getHeaders } from "./getHeader";
 import { IMessageEx } from "../system/IMessageEx";
 
 
@@ -299,3 +298,7 @@ interface DailyNoteData {
     };
 
 }
+function getHeaders(arg0: string): any {
+    throw new Error("Function not implemented.");
+}
+

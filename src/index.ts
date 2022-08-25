@@ -12,6 +12,7 @@ import { roleCard1, roleCard2, roleCard3, roleCardLife, roleCardWeapon, talentLi
 import { newsContentBBS, newsListBBS } from './plugins/components/announcementManager';
 import { IMessageEx } from './plugins/system/IMessageEx';
 import { dashboardHandle } from './plugins/components/dashboardManager';
+import { skillCalculator } from './plugins/genshin/skillCalculator';
 
 
 var checkTimes = 0;
@@ -139,7 +140,9 @@ init().then(() => {
                 case "dashboardHandle":
                     dashboardHandle(msg);
                     break;
-
+                case "skillCalculator":
+                    skillCalculator(msg);
+                    break;
                 case "ping":
                     global.redis.ping().then(pong => {
                         msg.sendMsgEx({ content: pong });

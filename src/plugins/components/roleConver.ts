@@ -4,6 +4,7 @@ import daily from "../../../data/daily.json";
 import log from "../system/logger";
 
 export function roleToId(name: string): number | null {
+    if (!name) return null;
     for (const role of roles) {
         for (const roleName of role.name) {
             if (name == roleName)

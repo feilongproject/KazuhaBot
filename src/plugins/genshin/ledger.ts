@@ -1,5 +1,4 @@
 import fetch from "node-fetch";
-import { getHeaders } from "../components/getHeader";
 import { render } from "../components/render";
 import { IMessageEx } from "../system/IMessageEx";
 import log from "../system/logger";
@@ -57,7 +56,6 @@ export async function ledgerPart(msg: IMessageEx) {
         nowMonth: { total: 0, gacha: 0 },
         lastMonth: { total: 0, gacha: 0 },
     }
-
     var mora = {
         nowMonth: { total: 0, content: `` },
         lastMonth: { total: 0, content: `` },
@@ -66,8 +64,6 @@ export async function ledgerPart(msg: IMessageEx) {
     var groupBy: { action: string, color: string, percent: number, num: number }[] = [];
 
     if (data) {
-
-
         primogems.nowMonth.total = data.month_data.current_primogems;
         primogems.lastMonth.total = data.month_data.last_primogems;
         mora.nowMonth.total = data.month_data.current_mora;
@@ -112,8 +108,6 @@ export async function ledgerPart(msg: IMessageEx) {
             log.error(err);
         });
     }
-
-
 }
 
 
@@ -304,3 +298,7 @@ interface LedgerData {
     };
     lantern: false;
 };
+
+function getHeaders(arg0: string): any {
+    throw new Error("Function not implemented.");
+}
