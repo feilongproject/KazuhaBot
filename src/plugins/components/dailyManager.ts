@@ -5,6 +5,7 @@ import fs from "fs";
 import { render } from "./render";
 import log from "../system/logger";
 import { IMessageEx } from "../system/IMessageEx";
+import { getHeaders } from "./mihoyoAPI";
 
 
 export async function selectTemplate(msg: IMessageEx) {
@@ -42,6 +43,10 @@ export async function onceCheck(msg: IMessageEx) {
         msg.sendMsgEx({ content: `未找到cookie，请绑定cookie!` });
         return;
     }
+    /**
+     * TODO
+     * 统一API后，getHeaders函数不导出，目前暂时使用
+     */
     const headers = getHeaders(`role_id=${miUid}&server=${miRegion}`) as any;
     headers.Cookie = cookie;
     const data = await fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?role_id=${miUid}&server=${miRegion}`, {
@@ -298,7 +303,3 @@ interface DailyNoteData {
     };
 
 }
-function getHeaders(arg0: string): any {
-    throw new Error("Function not implemented.");
-}
-
