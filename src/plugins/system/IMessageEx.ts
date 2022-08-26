@@ -47,6 +47,25 @@ export class IMessageEx implements IMessage {
         this.seq_in_channel = msg.seq_in_channel;
 
         this.messageType = messageType;
+
+        if (messageType == "DIRECT") {
+            log.info(`私信{${msg.guild_id}}[${msg.channel_id}](${msg.author.username}):${msg.content}`);
+            return;
+        }
+
+        for (const guild of global.saveGuildsTree) {
+            if (guild.id == this.guild_id) {
+                for (const channel of guild.channel) {
+                    if (channel.id == this.channel_id) {
+                        this.guild_name = guild.name;
+                        this.channel_name = channel.name;
+                        log.info(`频道{${this.guild_name}}[${this.channel_name}](${this.author.username}|${this.author.id}):${this.content}`);
+                        return;
+                    }
+                }
+            }
+        }
+        log.warn(`unKnown message:{${msg.guild_id}}[${msg.channel_id}](${msg.author.username}):${msg.content}`);
     }
 
     async sendMsgEx(option: SendMsgOption) {

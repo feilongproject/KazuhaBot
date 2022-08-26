@@ -7,8 +7,6 @@ import { pushDaily } from './plugins/components/dailyManager';
 
 export async function init() {
 
-    var saveGuildsTree: SaveGuild[] = [];
-
     global.client = createOpenAPI(config.initConfig);
     global.ws = createWebsocket(config.initConfig as any);
 
@@ -28,36 +26,28 @@ export async function init() {
     ////官方公告推送
     //schedule.scheduleJob("0 3,33 * * * ? ", () => YunzaiApps.newsListBBS.pushNewsTask());
     ////原石统计推送
-    //schedule.scheduleJob("0 0 10 L * ? ", () => YunzaiApps.dailyNote.ledgerTask()); 
-
-    /* return client.meApi.me().then(res => {
-        var meId = res.data.id;
-
-        return client.meApi.meGuilds().then(guilds => {
-
-            guilds.data.forEach(guild => {
-                log.info(`${guild.name}(${guild.id})`);
-                var _guild: SaveChannel[] = [];
-                //log.info(guild.id);
-                //log.info(guild.channels);
-                client.channelApi.channels(guild.id).then(channels => {
-                    channels.data.forEach((channel => {
-                        if (channel.name != "") {
-                            log.info(`${guild.name}(${guild.id})-${channel.name}(${channel.id})-father:${channel.parent_id}`);
-                        }
-                        _guild.push({ name: channel.name, id: channel.id });
-                    }));
-
-                    saveGuildsTree.push({ name: guild.name, id: guild.id, channel: _guild });
-                }).catch(err => {
-                    log.error(err);
-                });
+    //schedule.scheduleJob("0 0 10 L * ? ", () => YunzaiApps.dailyNote.ledgerTask());
 
 
+    global.saveGuildsTree = [];
+    client.meApi.meGuilds().then(guilds => {
 
+        for (const guild of guilds.data) {
+            log.info(`${guild.name}(${guild.id})`);
+            var _guild: SaveChannel[] = [];
+            global.client.channelApi.channels(guild.id).then(channels => {
+                for (const channel of channels.data) {
+                    if (channel.name != "") {
+                        log.info(`${guild.name}(${guild.id})-${channel.name}(${channel.id})-father:${channel.parent_id}`);
+                    }
+                    _guild.push({ name: channel.name, id: channel.id });
+                }
+                global.saveGuildsTree.push({ name: guild.name, id: guild.id, channel: _guild });
+            }).catch(err => {
+                log.error(err);
             });
-            return { client, ws, saveGuildsTree, meId, databasePusher };
-        });
-    }); */
+        }
 
+
+    });
 }

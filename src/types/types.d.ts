@@ -7,6 +7,7 @@ declare global {
   var ws: WebsocketClient;
   var redis: RedisClientType;
   var browser: Browser | null;
+  var saveGuildsTree: SaveGuild[];
 
   interface IntentMessage {
     eventType: "MESSAGE_CREATE" | "PUBLIC_MESSAGE_DELETE" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_ADD" | "GUILD_MEMBER_UPDATE",
