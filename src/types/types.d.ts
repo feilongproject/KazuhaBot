@@ -8,6 +8,11 @@ declare global {
   var redis: RedisClientType;
   var browser: Browser | null;
   var saveGuildsTree: SaveGuild[];
+  var botStatus: {
+    startTime: Date;
+    msgSendNum: number;
+    imageRenderNum: number;
+  }
 
   interface IntentMessage {
     eventType: "MESSAGE_CREATE" | "PUBLIC_MESSAGE_DELETE" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_ADD" | "GUILD_MEMBER_UPDATE",

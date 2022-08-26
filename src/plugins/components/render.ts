@@ -67,6 +67,7 @@ async function doRender(renderData: Render): Promise<string | null> {
     });
     await page.close();
     if (fs.existsSync(savePic)) {
+        global.botStatus.imageRenderNum++;
         return savePic;
     } else {
         return null;

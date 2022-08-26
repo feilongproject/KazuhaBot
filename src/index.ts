@@ -13,6 +13,7 @@ import { newsContentBBS, newsListBBS } from './plugins/components/announcementMa
 import { IMessageEx } from './plugins/system/IMessageEx';
 import { dashboardHandle } from './plugins/components/dashboardManager';
 import { skillCalculator } from './plugins/genshin/skillCalculator';
+import { status } from './plugins/system/status';
 
 
 var checkTimes = 0;
@@ -69,10 +70,11 @@ init().then(() => {
         findOpts(opts[0]).then(opt => {
             log.info(`opt:${opt}`);
             switch (opt) {
+                case "status":
+                    status(msg);
+                    break;
                 case "gacha":
-                    gacha(msg).catch(err => {
-                        log.error(err);
-                    });
+                    gacha(msg);
                     break;
                 case "bingCookie":
                     bingCookie(msg);

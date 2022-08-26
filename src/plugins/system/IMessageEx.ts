@@ -69,6 +69,7 @@ export class IMessageEx implements IMessage {
     }
 
     async sendMsgEx(option: SendMsgOption) {
+        global.botStatus.msgSendNum++;
         const { ref, imagePath, content } = option;
         const { id, guild_id, channel_id } = this;
         if (imagePath) {

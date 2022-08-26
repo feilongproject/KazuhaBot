@@ -3,9 +3,14 @@
     "command": {
         "admin": {
             "ping": {
-                "reg": "^#?ping$",
+                "reg": "^#ping$",
                 "fnc": "ping",
                 "describe": "检测数据库是否正常"
+            },
+            "status": {
+                "reg": "^#(状态|status)$",
+                "fnc": "status",
+                "describe": "查询bot状态"
             }
         },
         "cookie": {

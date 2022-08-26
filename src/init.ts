@@ -7,6 +7,13 @@ import { pushDaily } from './plugins/components/dailyManager';
 
 export async function init() {
 
+
+    global.botStatus = {
+        startTime: new Date(),
+        msgSendNum: 0,
+        imageRenderNum: 0,
+    }
+
     global.client = createOpenAPI(config.initConfig);
     global.ws = createWebsocket(config.initConfig as any);
 
