@@ -1,193 +1,199 @@
-[
-    {
-        "reg": "^#?ping$",
-        "fnc": "ping",
-        "describe": "检测数据库是否正常"
-    },
-
-    {
-        "reg": "ltoken=([^;]+;)|ltuid=([^;]+;)|cookie_token=([^;]+;)|login_ticket=([^;]+;)",
-        "fnc": "bingCookie",
-        "describe": "绑定cookie"
-    },
-    {
-        "reg": "^#我的(ck|cookie)$",
-        "fnc": "queryCookie",
-        "describe": "查询用户绑定cookie"
-    },
-    {
-        "reg": "^#删除(Cookie|cookie|ck)$",
-        "fnc": "delCookie",
-        "describe": "删除用户当前cookie"
-    },
-    {
-        "reg": "^#(检查(ck|cookie)|(ck|cookie)检查)$",
-        "fnc": "checkCookie",
-        "describe": "检查cookie"
-    },
-
-    {
-        "reg": "^#(10|[武器池]*[十]+|抽|单)[连抽卡奖][123武器池]*$",
-        "fnc": "gacha",
-        "describe": "一次十连抽卡"
-    },
-
-    {
-        "reg": "^#(体力|树脂|查询体力|便笺|便签)$",
-        "fnc": "onceDaily",
-        "describe": "使用指令查询当前体力"
-    },
-    {
-        "reg": "^#(开启(体力|树脂)*推送|关闭(体力|树脂)*推送)$",
-        "fnc": "changeDaily",
-        "describe": "开启体力推送"
-    },
-    {
-        "reg": "^#体力模板(设置(.*)|列表)$",
-        "fnc": "templateDaily",
-        "describe": "体力模板设置"
-    },
-    {
-        "reg": "^#(体力|树脂|cookie|ck|签到|原石)(帮助|说明|功能)$",
-        "fnc": "helpDaily",
-        "describe": "体力帮助"
-    },
-
-    {
-        "reg": "^#(原石|札记)([0-9]|[一二两三四五六七八九十]+)*月{0,1}$",
-        "fnc": "ledgerPart",
-        "describe": "统计指定月的原石札记，未指定为当月"
-    },
-    {
-        "reg": "^#(原石|札记)统计$",
-        "fnc": "ledgerCount",
-        "describe": "统计所有原石札记"
-    },
-
-    {
-        "reg": "^#?(更新)?(\\S+)攻略([1-4])?$",
-        "fnc": "strategy",
-        "describe": "获取攻略图"
-    },
-
-    {
-        "reg": "^#(角色2|宝箱|成就|尘歌壶|家园|探索|探险|声望|探险度|探索度)$",
-        "fnc": "roleCard2",
-        "describe": "【#探索，#声望】展示原神角色大地图探险数据"
-    },
-    {
-        "reg": "^#(角色3|角色卡片)$",
-        "fnc": "roleCard3",
-        "describe": "【#角色卡片】展示原神角色数据卡片，横向"
-    },
-    {
-        "reg": "^#((角色|查询|查询角色|角色查询|人物)[\\+|＋]?([1|2|5][0-9]{8})?|([uid|UID]?[\\+|＋]?[1|2|5][0-9]{8}))$",
-        "fnc": "roleCard1",
-        "describe": "【#角色，#104070461】展示原神角色数据，竖向"
-    },
-    {
-        "reg": "^#(我的)?(技能|天赋|武器|角色|练度|五星|四星|5星|4星)(汇总|统计|列表)(force|五|四|5|4|星)?[ |0-9]*$",
-        "fnc": "talentList",
-        "describe": "【#技能列表、#练度统计】查看所有角色技能列表"
-    },
-    {
-        "reg": "^#([五|四|5|4]星)?武器[信息|阵容|统计]?$",
-        "fnc": "roleCardWeapon",
-        "describe": "【#武器】角色已装备武器列表"
-    },
-    {
-        "reg": "^#(五星|四星|5星|4星|命座|角色)(信息|阵容|统计)?$",
-        "fnc": "roleCardLife",
-        "describe": "【#四星，#五星】角色列表"
-    },
-
-    {
-        "reg": "^#(今日|今天|每日|我的)(素材|材料|天赋)$",
-        "fnc": "todayQuery",
-        "describe": "【#今日素材】查看今天可以刷什么角色的"
-    },
-
-    {
-        "reg": "^#(更新|录入)?(.*)(详细|详情|面板|面版|圣遗物|伤害[1-7]?)(更新|帮助)?$",
-        "fnc": "dashboardHandle",
-        "describe": "【#角色面板】角色面板详情"
-    },
-
-    {
-        "reg": "^#角色(养成|计算|养成计算)$",
-        "fnc": "skillCalculator",
-        "describe": "【#养成计算器】根据已有角色计算养成所需材料"
-    },
-    {
-        "reg": "^#(.*)(养成|计算|培养)([0-9]|,|，| )*$",
-        "fnc": "skillCalculator",
-        "describe": "【#养成计算器】根据已有角色计算养成所需材料"
-    },
-
-    {
-        "reg": "^#(官方|原神)?(公告|资讯|活动)[0-9]*$",
-        "fnc": "newsContentBBS",
-        "describe": "【#官方公告】米游社官方公告"
-    },
-    {
-        "reg": "^#(公告|资讯|活动)列表$",
-        "fnc": "newsListBBS",
-        "describe": "【#官方公告列表】米游社官方公告列表"
-    },
-    {
-        "reg": "^#(开启公告推送|关闭公告推送)$",
-        "fnc": "pushManagerBBS",
-        "describe": "（未实现）【#开启/关闭公告推送】"
-    },
-    {
-        "reg": "(.*)bbs.mihoyo.com/ys(.*)/article(.*)",
-        "fnc": "urlBBS",
-        "describe": "（未实现）"
-    },
-    {
-        "reg": "^#(米游社|mys)(.*)",
-        "fnc": "seachBBS",
-        "describe": "（未实现）"
-    },
-    {
-        "reg": "^#.{1,}图鉴$",
-        "fnc": "handbook",
-        "describe": "（未实现）角色、食物、怪物、武器信息图鉴"
-    },
-    {
-        "reg": "^#图鉴(强制)?更新$",
-        "fnc": "bookUpdate",
-        "describe": "（未实现）更新图鉴资源"
-    },
-
-    {
-        "reg": "^#*(抽卡|抽奖|角色|武器|常驻|up)池*统计$",
-        "fnc": "gachaLog",
-        "describe": "（未实现）抽卡统计"
-    },
-    {
-        "reg": "^#*(抽卡|抽奖|角色|武器|常驻|up)池*(记录|祈愿|分析)$",
-        "fnc": "gachaLog",
-        "describe": "（未实现）抽卡统计"
-    },
-    {
-        "reg": "(.*)authkey_ver(.*)",
-        "fnc": "gachaLog",
-        "describe": "（未实现）抽卡统计"
-    },
-    {
-        "reg": "^#签到$",
-        "fnc": "signOnce",
-        "describe": "（未实现）当日米游社签到一次"
-    },
-    {
-        "reg": "^#(开启签到推送|关闭签到推送)$",
-        "fnc": "signCheck",
-        "describe": "（未实现）开启/关闭签到推送"
-    },
-    {
-        "reg": "^#(开启|关闭)(米游社|自动)*签到$",
-        "fnc": "signAuto",
-        "describe": "（未实现）开启/关闭自动签到"
+{
+    "desc": "命令总览json,按照顺序进行匹配",
+    "command": {
+        "admin": {
+            "ping": {
+                "reg": "^#?ping$",
+                "fnc": "ping",
+                "describe": "检测数据库是否正常"
+            }
+        },
+        "cookie": {
+            "bingCookie": {
+                "reg": "ltoken=([^;]+;)|ltuid=([^;]+;)|cookie_token=([^;]+;)|login_ticket=([^;]+;)",
+                "fnc": "bingCookie",
+                "describe": "绑定cookie"
+            },
+            "queryCookie": {
+                "reg": "^#我的(ck|cookie)$",
+                "fnc": "queryCookie",
+                "describe": "查询用户绑定cookie"
+            },
+            "delCookie": {
+                "reg": "^#删除(Cookie|cookie|ck)$",
+                "fnc": "delCookie",
+                "describe": "删除用户当前cookie"
+            },
+            "checkCookie": {
+                "reg": "^#(检查(ck|cookie)|(ck|cookie)检查)$",
+                "fnc": "checkCookie",
+                "describe": "检查cookie"
+            }
+        },
+        "gacha": {
+            "gacha": {
+                "reg": "^#(10|[武器池]*[十]+|抽|单)[连抽卡奖][123武器池]*$",
+                "fnc": "gacha",
+                "describe": "一次十连抽卡"
+            },
+            "gachaLog": {
+                "reg": "^#(抽卡|抽奖|角色|武器|常驻|up)池(记录|祈愿|分析|统计)$",
+                "fnc": "gachaLog",
+                "describe": "（未实现）抽卡统计"
+            },
+            "gachaLogRecord": {
+                "reg": "(.*)authkey_ver(.*)",
+                "fnc": "gachaLogRecord",
+                "describe": "（未实现）抽卡统计录入"
+            }
+        },
+        "daily": {
+            "onceDaily": {
+                "reg": "^#(体力|树脂|查询体力|便笺|便签)$",
+                "fnc": "onceDaily",
+                "describe": "使用指令查询当前体力"
+            },
+            "changeDaily": {
+                "reg": "^#(开启|关闭)(体力|树脂)推送$",
+                "fnc": "changeDaily",
+                "describe": "开启体力推送"
+            },
+            "templateDaily": {
+                "reg": "^#体力模板(设置(.*)|列表)$",
+                "fnc": "templateDaily",
+                "describe": "体力模板设置"
+            },
+            "helpDaily": {
+                "reg": "^#(体力|树脂|cookie|ck|签到|原石)(帮助|说明|功能)$",
+                "fnc": "helpDaily",
+                "describe": "体力帮助"
+            },
+            "todayQuery": {
+                "reg": "^#(今日|今天|每日|我的)(素材|材料|天赋)$",
+                "fnc": "todayQuery",
+                "describe": "【#今日素材】查看今天可以刷什么角色的"
+            },
+            "signOnce": {
+                "reg": "^#签到$",
+                "fnc": "signOnce",
+                "describe": "（未实现）当日米游社签到一次"
+            },
+            "signCheck": {
+                "reg": "^#(开启签到推送|关闭签到推送)$",
+                "fnc": "signCheck",
+                "describe": "（未实现）开启/关闭签到推送"
+            },
+            "signAuto": {
+                "reg": "^#(开启|关闭)(米游社|自动)*签到$",
+                "fnc": "signAuto",
+                "describe": "（未实现）开启/关闭自动签到"
+            }
+        },
+        "ledger": {
+            "ledgerPart": {
+                "reg": "^#(原石|札记)([0-9]|[一二两三四五六七八九十]+)*月{0,1}$",
+                "fnc": "ledgerPart",
+                "describe": "统计指定月的原石札记，未指定为当月"
+            },
+            "ledgerCount": {
+                "reg": "^#(原石|札记)统计$",
+                "fnc": "ledgerCount",
+                "describe": "统计所有原石札记"
+            }
+        },
+        "strategy": {
+            "strategy": {
+                "reg": "^#?(更新)?(\\S+)攻略([1-4])?$",
+                "fnc": "strategy",
+                "describe": "获取攻略图"
+            }
+        },
+        "roleCard": {
+            "roleCard2": {
+                "reg": "^#(角色2|宝箱|成就|尘歌壶|家园|探索|探险|声望|探险度|探索度)$",
+                "fnc": "roleCard2",
+                "describe": "【#探索，#声望】展示原神角色大地图探险数据"
+            },
+            "roleCard3": {
+                "reg": "^#(角色3|角色卡片)$",
+                "fnc": "roleCard3",
+                "describe": "【#角色卡片】展示原神角色数据卡片，横向"
+            },
+            "roleCard1": {
+                "reg": "^#((角色|查询|查询角色|角色查询|人物)[\\+|＋]?([1|2|5][0-9]{8})?|([uid|UID]?[\\+|＋]?[1|2|5][0-9]{8}))$",
+                "fnc": "roleCard1",
+                "describe": "【#角色，#104070461】展示原神角色数据，竖向"
+            },
+            "roleCardWeapon": {
+                "reg": "^#([五|四|5|4]星)?武器[信息|阵容|统计]?$",
+                "fnc": "roleCardWeapon",
+                "describe": "【#武器】角色已装备武器列表"
+            },
+            "roleCardLife": {
+                "reg": "^#(五星|四星|5星|4星|命座|角色)(信息|阵容|统计)?$",
+                "fnc": "roleCardLife",
+                "describe": "【#四星，#五星】角色列表"
+            }
+        },
+        "dashboard": {
+            "dashboardHandle": {
+                "reg": "^#(更新|录入)?(.*)(详细|详情|面板|面版|圣遗物|伤害[1-7]?)(更新|帮助)?$",
+                "fnc": "dashboardHandle",
+                "describe": "【#角色面板】角色面板详情"
+            }
+        },
+        "calculator": {
+            "skillCalculator": {
+                "reg": "^#(.*)(养成|计算|培养|养成计算)([0-9]|,|，| )*$",
+                "fnc": "skillCalculator",
+                "describe": "【#养成计算器】根据已有角色计算养成所需材料"
+            }
+        },
+        "BBS": {
+            "newsContentBBS": {
+                "reg": "^#(官方|原神)?(公告|资讯|活动)[0-9]*$",
+                "fnc": "newsContentBBS",
+                "describe": "【#官方公告】米游社官方公告"
+            },
+            "newsListBBS": {
+                "reg": "^#(公告|资讯|活动)列表$",
+                "fnc": "newsListBBS",
+                "describe": "【#官方公告列表】米游社官方公告列表"
+            },
+            "pushManagerBBS": {
+                "reg": "^#(开启公告推送|关闭公告推送)$",
+                "fnc": "pushManagerBBS",
+                "describe": "（未实现）【#开启/关闭公告推送】"
+            },
+            "urlBBS": {
+                "reg": "(.*)bbs.mihoyo.com/ys(.*)/article(.*)",
+                "fnc": "urlBBS",
+                "describe": "（未实现）"
+            },
+            "seachBBS": {
+                "reg": "^#(米游社|mys)(.*)",
+                "fnc": "seachBBS",
+                "describe": "（未实现）"
+            }
+        },
+        "handbook": {
+            "handbook": {
+                "reg": "^#.{1,}图鉴$",
+                "fnc": "handbook",
+                "describe": "（未实现）角色、食物、怪物、武器信息图鉴"
+            },
+            "bookUpdate": {
+                "reg": "^#图鉴(强制)?更新$",
+                "fnc": "bookUpdate",
+                "describe": "（未实现）更新图鉴资源"
+            }
+        },
+        "talent": {
+            "talentList": {
+                "reg": "^#(我的)?(技能|天赋|武器|角色|练度|五星|四星|5星|4星)(汇总|统计|列表)(force|五|四|5|4|星)?[ |0-9]*$",
+                "fnc": "talentList",
+                "describe": "【#技能列表、#练度统计】查看所有角色技能列表"
+            }
+        }
     }
-]
+}
