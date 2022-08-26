@@ -46,9 +46,24 @@ const _path = process.cwd();
 
 lodash.forEach(artifactsMap, (ds) => {
     (artifactsMap as ArtifactsMap)[ds.name] = ds;
-})
+});
 
 export async function dashboardHandle(msg: IMessageEx): Promise<boolean> {
+
+
+    if (msg.content.includes("帮助")) {
+        msg.sendMsgEx({ imagePath: `${_path}/resources/dashboard/help.jpg` })
+        return true;
+    }
+
+    const regEnemyLv = /^#(敌人|怪物)等级(\d{1,3})$/.exec(msg.content);
+    if (regEnemyLv && regEnemyLv[2]) {
+        await global.redis.hSet(`genshin:config:${msg.author.id}`, "enemyLv", regEnemyLv[2]);
+        const lv = await global.redis.hGet(`genshin:config:${msg.author.id}`, "enemyLv") || "91";
+        msg.sendMsgEx({ content: `敌人等级已经设置为${lv}` });
+        return true;
+    }
+
     var dmgIdx = 0;
     var mode = "";
     const uid = await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
@@ -69,9 +84,6 @@ export async function dashboardHandle(msg: IMessageEx): Promise<boolean> {
                 `\n你可以使用 #角色名+面板 来查看详细角色面板属性了。`
         });
         else msg.sendMsgEx({ content: `本次更新未获取到任何角色数据，请打开游戏内角色展柜的【显示详情】后，等待5分钟重新获取面板` });
-        return true;
-    }
-    if (msg.content.includes("帮助")) {
         return true;
     }
 

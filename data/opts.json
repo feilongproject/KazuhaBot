@@ -145,6 +145,16 @@
                 "reg": "^#(更新|录入)?(.*)(详细|详情|面板|面版|圣遗物|伤害[1-7]?)(更新|帮助)?$",
                 "fnc": "dashboardHandle",
                 "describe": "【#角色面板】角色面板详情"
+            },
+            "enemyLv": {
+                "reg": "^#(敌人|怪物)等级\\d{1,3}$",
+                "fnc": "dashboardHandle",
+                "describe": "【#角色】 设置伤害计算中目标敌人的等级"
+            },
+            "getDashboardAll": {
+                "reg": "^#(面板角色|角色面板|面板)(列表)?$",
+                "fnc": "dashboardHandle",
+                "describe": "【#角色】查看当前已获取面板数据的角色列表"
             }
         },
         "calculator": {
