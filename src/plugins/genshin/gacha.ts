@@ -19,24 +19,10 @@ const chanceW5 = 70;
 //四星武器基础概率
 const chanceW4 = 600;
 
-
-export const rule = {
-    gacha: {
-        reg: "^#*(10|[武器池]*[十]+|抽|单)[连抽卡奖][123武器池]*$",
-        priority: 100,
-        describe: "【十连，十连2，十连武器】模拟原神抽卡",
-    },
-    weaponBing: {
-        reg: "^#*定轨$", //匹配的正则
-        priority: 101, //优先级，越小优先度越高
-        describe: "【定轨】武器池定轨", //描述说明
-    },
-};
-
 //五星角色
-let role5 = ["刻晴", "莫娜", "七七", "迪卢克", "琴"];
+let role5 = ["刻晴", "莫娜", "七七", "迪卢克", "琴", "提纳里"];
 //四星角色
-let role4 = ["香菱", "辛焱", "迪奥娜", "班尼特", "凝光", "北斗", "行秋", "重云", "雷泽", "诺艾尔", "砂糖", "菲谢尔", "芭芭拉", "罗莎莉亚", "烟绯", "早柚", "托马", "九条裟罗", "五郎", "云堇",];
+let role4 = ["香菱", "辛焱", "迪奥娜", "班尼特", "凝光", "北斗", "行秋", "重云", "雷泽", "诺艾尔", "砂糖", "菲谢尔", "芭芭拉", "罗莎莉亚", "烟绯", "早柚", "托马", "九条裟罗", "五郎", "云堇", "柯莱", "多莉"];
 
 //五星武器
 let weapon5 = ["阿莫斯之弓", "天空之翼", "天空之卷", "天空之脊", "天空之傲", "天空之刃", "四风原典", "和璞鸢", "狼的末路", "风鹰剑"];
@@ -56,6 +42,8 @@ export async function gacha(msg: IMessageEx) {
     if (msg.content.indexOf("2") != -1) upType = 2;
     if (msg.content.indexOf("3") != -1) { upType = 3; type = "weapon"; }
 
+    var weaponBing = await global.redis.hGet(`genshin:config:${msg.author.id}`, "weaponBing") || undefined;
+
     global.redis.get(`genshin:gacha:${userId}`).then((_gachaData) => {
         //var gachaData: GachaData;
         if (_gachaData) {
@@ -63,7 +51,7 @@ export async function gacha(msg: IMessageEx) {
         } else {
             return {
                 total: 0,
-                N: { star5: 0, star4: 0, },
+                N: { star5: 0, star4: 0, weaponMust: false },
                 today: { expire: 0, roleNum: 0, weaponNum: 0, },
                 role: { star4: 0, star5: 0, },
                 weapon: { star4: 0, star5: 0, },
@@ -90,7 +78,14 @@ export async function gacha(msg: IMessageEx) {
             if (getRandomInt(10000) <= tmpChance5) {//抽中五星
                 gachaData.N.star5 = 0;
                 gachaData.N.star4 = 0;
-                _queue.push(randStar(5, type, upType));
+
+                if (type == "weapon" && gachaData.N.weaponMust) {
+                    _queue.push(randStar(5, type, upType, weaponBing));
+                    gachaData.N.weaponMust = false;
+                } else {
+                    if (type == "weapon") gachaData.N.weaponMust = true;
+                    _queue.push(randStar(5, type, upType));
+                }
             } else if (getRandomInt(10000) <= chance4 || gachaData.N.star4 == 9) { //抽中四星
                 gachaData.N.star5++;
                 gachaData.N.star4 = 0;
@@ -122,6 +117,8 @@ export async function gacha(msg: IMessageEx) {
                 info: `累计「${gachaData.total}抽」`,
                 list: _queue,
                 poolName,
+                isWeapon: type == "weapon",
+                bingWeapon: (type == "weapon" && weaponBing) ? getNowPool(3).weapon5[parseInt(weaponBing)] : undefined,
             },
         }).then(savePic => {
             if (typeof savePic == "string")
@@ -134,6 +131,37 @@ export async function gacha(msg: IMessageEx) {
     });
 }
 
+export async function gachaWeaponBing(msg: IMessageEx) {
+
+    const weapon = getNowPool(3).weapon5;
+    var configBing = await global.redis.hGet(`genshin:config:${msg.author.id}`, "weaponBing");
+
+    switch (configBing) {
+        case undefined:
+        case null:
+            await global.redis.hSet(`genshin:config:${msg.author.id}`, "weaponBing", "0");
+            msg.sendMsgEx({
+                content:
+                    `定轨成功\n` +
+                    `[√] ${weapon[0]}\n` +
+                    `[  ] ${weapon[1]}`
+            });
+            break;
+        case "0":
+            await global.redis.hSet(`genshin:config:${msg.author.id}`, "weaponBing", "1");
+            msg.sendMsgEx({
+                content:
+                    `定轨成功\n` +
+                    `[  ] ${weapon[0]}\n` +
+                    `[√] ${weapon[1]}`
+            }); break;
+        case "1":
+            await global.redis.hDel(`genshin:config:${msg.author.id}`, "weaponBing");
+            msg.sendMsgEx({ content: `定轨已取消` });
+            break;
+        case undefined:
+    }
+}
 
 function getEnd() {
     let now = new Date();
@@ -191,7 +219,7 @@ function getNowPool(upType: number) {
                 weapon4: end?.weapon4,
                 weapon5: end?.weapon5,
             };
-        case 3:
+        default:
             return {
                 up4: end?.up4,
                 up5: end?.up5,
@@ -202,7 +230,7 @@ function getNowPool(upType: number) {
 
 }
 
-function randStar(star: 5 | 4 | 3, _type: string, upType: 1 | 2 | 3): RandQueue {
+function randStar(star: 5 | 4 | 3, _type: string, upType: 1 | 2 | 3, weaponBing?: string): RandQueue {
 
     var upPool = getNowPool(upType);
 
@@ -246,8 +274,10 @@ function randStar(star: 5 | 4 | 3, _type: string, upType: 1 | 2 | 3): RandQueue 
             _pool = weapon3;
             break;
     }
+
+    if (weaponBing) _pool = [upPool.weapon5[parseInt(weaponBing)]];
     var id = getRandomInt(_pool.length);
-    log.debug(id, _pool[id], type);
+    //log.debug(id, _pool[id], type);
 
     for (let iv = 0; iv < searchPool.length; iv++) {
         //log.debug(searchPool[iv], _pool[id]);
@@ -269,6 +299,7 @@ interface GachaData {
     N: {
         star5: number;
         star4: number;
+        weaponMust: boolean;
     };
     today: {
         expire: number;

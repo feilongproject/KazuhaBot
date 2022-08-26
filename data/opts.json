@@ -41,6 +41,11 @@
                 "fnc": "gacha",
                 "describe": "一次十连抽卡"
             },
+            "gachaWeaponBing": {
+                "reg": "^#(武器)?定轨$",
+                "fnc": "gachaWeaponBing",
+                "describe": "【定轨】武器池定轨"
+            },
             "gachaLog": {
                 "reg": "^#(抽卡|抽奖|角色|武器|常驻|up)池(记录|祈愿|分析|统计)$",
                 "fnc": "gachaLog",
