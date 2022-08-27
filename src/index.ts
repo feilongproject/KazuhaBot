@@ -1,7 +1,7 @@
 import { ArkObj, IMessage, OpenAPI } from 'qq-guild-bot';
 import { init } from './init';
 import { bingCookie, checkCookie, deleteCookie, queryCookie } from './plugins/components/cookieManager';
-import { gacha } from './plugins/genshin/gacha';
+import { gacha, gachaWeaponBing } from './plugins/genshin/gacha';
 import { changeDaily, helpDaily, onceCheck, selectTemplate } from './plugins/components/dailyManager';
 import { findOpts } from './plugins/system/findOpts';
 import log from './plugins/system/logger';
@@ -75,6 +75,9 @@ init().then(() => {
                     break;
                 case "gacha":
                     gacha(msg);
+                    break;
+                case "gachaWeaponBing":
+                    gachaWeaponBing(msg);
                     break;
                 case "bingCookie":
                     bingCookie(msg);
