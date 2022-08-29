@@ -1,12 +1,10 @@
 import fs from 'fs'
 import lodash from 'lodash'
-import { Format } from '../../system/common';
-import log from '../../system/logger';
-import { AnalyzeMain, AnalyzeArtifact } from "../dashboardManager";
+import { Format } from '../../../lib/common';
+import log from '../../../lib/logger';
+import { AnalyzeMain, AnalyzeArtifact } from "../../dashboardManager";
 import { CharacterInfo, getCharacterInfo } from '../data/getCharacter';
 import { attrMap, eleBaseDmg, eleMap, erType } from './calc-meta';
-
-const _path = process.cwd();
 
 export async function calcData(profile: AnalyzeMain, char: CharacterInfo, enemyLv = 91, mode = 'profile', dmgIdx = 0) {
     const charCalcData = await getCharCalcRule(char.name);
@@ -138,9 +136,8 @@ export async function calcData(profile: AnalyzeMain, char: CharacterInfo, enemyL
     }
 }
 
-
 async function getCharCalcRule(name: string) {
-    const cfgPath = `${_path}/resources/_meta/roles/${name}/calc`;
+    const cfgPath = `${global._path}/resources/_meta/roles/${name}/calc`;
     var details;
     var buffs = [];
     var defParams = {};
@@ -396,7 +393,7 @@ function calcAttr(originalAttr: { [key: string]: any; }, buffs: any, meta: any, 
 }
 
 async function weapon(weaponName: string) {
-    const cfgPath = `${_path}/resources/_meta/weapons/calc`;
+    const cfgPath = `${global._path}/resources/_meta/weapons/calc`;
     var weapons: { [name: string]: any } = {};
     if (fs.existsSync(`${cfgPath}.ts`)) {
         const fileData = await import(`${cfgPath}`);
@@ -424,7 +421,7 @@ async function weapon(weaponName: string) {
 }
 
 async function reliquaries(sets: AnalyzeArtifact[]) {
-    const cfgPath = `${_path}/resources/_meta/reliquaries/calc`
+    const cfgPath = `${global._path}/resources/_meta/reliquaries/calc`
     var buffs: { [name: string]: any } = {};
     if (fs.existsSync(`${cfgPath}.ts`)) {
         const fileData = await import(`${cfgPath}`);

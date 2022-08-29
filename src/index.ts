@@ -1,19 +1,8 @@
-import { ArkObj, IMessage, OpenAPI } from 'qq-guild-bot';
 import { init } from './init';
-import { bingCookie, checkCookie, deleteCookie, queryCookie } from './plugins/components/cookieManager';
-import { gacha, gachaWeaponBing } from './plugins/genshin/gacha';
-import { changeDaily, helpDaily, onceCheck, selectTemplate } from './plugins/components/dailyManager';
-import { findOpts } from './plugins/system/findOpts';
-import log from './plugins/system/logger';
-import { handbook } from './plugins/genshin/handbook';
-import { ledgerCount, ledgerPart } from './plugins/genshin/ledger';
-import { strategy } from './plugins/genshin/strategy';
-import { roleCard1, roleCard2, roleCard3, roleCardLife, roleCardWeapon, talentList, todayQuery } from './plugins/genshin/roleCard';
-import { newsContentBBS, newsListBBS } from './plugins/components/announcementManager';
-import { IMessageEx } from './plugins/system/IMessageEx';
-import { dashboardHandle } from './plugins/components/dashboardManager';
-import { skillCalculator } from './plugins/genshin/skillCalculator';
-import { status } from './plugins/system/status';
+import { findOpts } from './lib/findOpts';
+import log from './lib/logger';
+import { IMessageEx } from './lib/IMessageEx';
+import fs from "fs";
 
 
 var checkTimes = 0;
@@ -26,7 +15,7 @@ init().then(() => {
 
         if (data.eventType == "MESSAGE_CREATE") {
             const opts = msg.content.trim().split(" ");
-            findOpts(opts[0]).then(opt => {
+            /* findOpts(opts[0]).then(opt => {
                 switch (opt) {
                     case "ping":
                         global.redis.ping().then(m => {
@@ -52,115 +41,34 @@ init().then(() => {
                         break;
                 }
 
-            });
-
-
-
+            }); */
 
         }
     });
 
-    global.ws.on("DIRECT_MESSAGE", (data: IntentMessage) => {
+    global.ws.on("DIRECT_MESSAGE", async (data: IntentMessage) => {
         const msg = new IMessageEx(data.msg, "DIRECT");// = data.msg as any;
 
         global.redis.set("lastestMsgId", msg.id, { EX: 5 * 60 });
         global.redis.hSet(`genshin:config:${msg.author.id}`, "guildId", msg.guild_id);
         const opts = msg.content.trim().split(" ");
         //findOpts(msg.content).then(opt => {
-        findOpts(opts[0]).then(opt => {
-            log.info(`opt:${opt}`);
-            switch (opt) {
-                case "status":
-                    status(msg);
-                    break;
-                case "gacha":
-                    gacha(msg);
-                    break;
-                case "gachaWeaponBing":
-                    gachaWeaponBing(msg);
-                    break;
-                case "bingCookie":
-                    bingCookie(msg);
-                    break;
-                case "queryCookie":
-                    queryCookie(msg);
-                    break;
-                case "delCookie":
-                    deleteCookie(msg);
-                    break;
-                case "onceDaily":
-                    onceCheck(msg);
-                    break;
-                case "changeDaily":
-                    changeDaily(msg);
-                    break;
-                case "templateDaily":
-                    selectTemplate(msg);
-                    break;
-                case "helpDaily":
-                    helpDaily(msg);
-                    break;
-                case "ledgerPart":
-                    ledgerPart(msg);
-                    break;
-                case "ledgerCount":
-                    ledgerCount(msg);
-                    break;
-                case "strategy":
-                    strategy(msg);
-                    break;
-                /* case "handbook":
-                    handbook(msg);
-                    break; */
-                case "roleCard1":
-                    roleCard1(msg);
-                    break;
-                case "roleCard2":
-                    roleCard2(msg);
-                    break;
-                case "roleCard3":
-                    roleCard3(msg);
-                    break;
-                case "roleCardLife":
-                    roleCardLife(msg);
-                    break;
-                case "roleCardWeapon":
-                    roleCardWeapon(msg);
-                    break;
-                case "talentList":
-                    talentList(msg);
-                    break;
-                case "newsContentBBS":
-                    newsContentBBS(msg);
-                    break;
-                case "newsListBBS":
-                    newsListBBS(msg);
-                    break;
-                case "todayQuery":
-                    todayQuery(msg);
-                    break;
-                case "checkCookie":
-                    checkCookie(msg);
-                    break;
-                case "dashboardHandle":
-                    dashboardHandle(msg);
-                    break;
-                case "skillCalculator":
-                    skillCalculator(msg);
-                    break;
-                case "ping":
-                    global.redis.ping().then(pong => {
-                        msg.sendMsgEx({ content: pong });
-                    }).catch(err => {
-                        log.error(err);
-                    });
-                    break;
-                case "err":
-                    msg.sendMsgEx({ content: "未知的指令" });
-                    break;
-            }
+        const opt = await findOpts(opts[0]);
+        log.debug(`./plugins/${opt.path}:${opt.fnc}`);
 
-        });
+        try {
+            if (opt.path != "err") {
+                const plugin = await import(`./plugins/${opt.path}.ts`);
+                if (typeof plugin[opt.fnc] == "function") {
+                    plugin[opt.fnc](msg);
+                } else {
+                    log.error(`not found function ${opt.fnc}() at "${global._path}/src/plugins/${opt.path}.ts"`);
+                }
+            }
+        } catch (err) {
+            log.error(err);
+        }
+
     });
 
 });

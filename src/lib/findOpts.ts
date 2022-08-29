@@ -1,8 +1,9 @@
-import fnc from "../../../data/opts.json";
+//import fnc from "../../data/opts.json";
 import log from "./logger";
 
 
-export async function findOpts(optStr: string): Promise<string> {
+export async function findOpts(optStr: string): Promise<{ path: string; fnc: string; }> {
+    const fnc = await import("../../data/opts.json");
 
     const command: {
         [mainKey: string]: {
@@ -18,11 +19,18 @@ export async function findOpts(optStr: string): Promise<string> {
         for (const key in command[mainKey]) {
             const opt = command[mainKey][key];
             if (RegExp(opt.reg).test(optStr)) {
-                return opt.fnc;
+                return {
+                    path: mainKey,
+                    fnc: opt.fnc,
+
+                };
             };
         }
     }
 
 
-    return "err";
+    return {
+        path: "err",
+        fnc: "err",
+    };
 }

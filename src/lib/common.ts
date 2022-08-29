@@ -1,9 +1,6 @@
 import fs from "fs";
 import log from "./logger";
 
-const _path = process.cwd();
-
-
 
 export function writeFileSyncEx(filePath: string, data: string | Buffer, options?: fs.WriteFileOptions) {
 
@@ -25,14 +22,12 @@ export function writeFileSyncEx(filePath: string, data: string | Buffer, options
     }
 }
 
-
-
 export function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function cacheJson<T>(opt: "w" | "r", app: string, data?: T): T | boolean | null {
-    const jsonPath = `${_path}/generate/cache/${app}.json`;
+    const jsonPath = `${global._path}/generate/cache/${app}.json`;
     try {
         if (opt == "r") {
             if (!fs.existsSync(jsonPath)) return null;

@@ -1,12 +1,14 @@
 import { createOpenAPI, createWebsocket, OpenAPI } from 'qq-guild-bot';
 import { createClient } from 'redis';
 import schedule from "node-schedule";
-import log from './plugins/system/logger';
+import fs from 'fs';
+import log from './lib/logger';
 import config from '../data/config.json';
-import { pushDaily } from './plugins/components/dailyManager';
+import { pushDaily } from './plugins/dailyManager';
 
 export async function init() {
 
+    global._path = process.cwd();
 
     global.botStatus = {
         startTime: new Date(),
@@ -57,4 +59,21 @@ export async function init() {
 
 
     });
+
+    fs.watch(`${global._path}/src/plugins/`, (event, filename) => {
+        //log.debug(event, filename);
+        if (event != "change") return;
+        if (require.cache[`${global._path}/src/plugins/${filename}`]) {
+            log.mark(`文件${global._path}/src/plugins/${filename}已修改，正在执行热更新`);
+            delete require.cache[`${global._path}/src/plugins/${filename}`];
+        }
+    });
+
+    fs.watchFile(`${global._path}/data/opts.json`, () => {
+        if (require.cache[`${global._path}/data/opts.json`]) {
+            log.mark(`指令配置文件正在进行热更新`);
+            delete require.cache[`${global._path}/data/opts.json`];
+        }
+    });
+
 }

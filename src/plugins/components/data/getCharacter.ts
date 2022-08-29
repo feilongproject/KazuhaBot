@@ -1,21 +1,18 @@
 import fs from "fs";
-import log from "../../system/logger";
+import log from "../../../lib/logger";
 import { eleMap } from "../calc/calc-meta";
 
-
-
-const _path = process.cwd();
 
 export function getCharacterInfo(name: string): CharacterInfo {
     var noFife = false;
 
-    var a = fs.access(`${_path}/resources/_meta/roles/${name}/data.json`, fs.constants.F_OK, (err) => {
+    var a = fs.access(`${global._path}/resources/_meta/roles/${name}/data.json`, fs.constants.F_OK, (err) => {
         if (err) log.error(err);
         else noFife = false;
     });
-    if (noFife) throw new Error(`not found ${_path}/resources/_meta/roles/${name}/data.json`);
+    if (noFife) throw new Error(`not found ${global._path}/resources/_meta/roles/${name}/data.json`);
 
-    const data = fs.readFileSync(`${_path}/resources/_meta/roles/${name}/data.json`, "utf-8");
+    const data = fs.readFileSync(`${global._path}/resources/_meta/roles/${name}/data.json`, "utf-8");
 
     const ret = JSON.parse(data) as CharacterInfo;
     ret.weaponType = weaponTypeMap[(ret.weapon || '').toLowerCase()] || '';

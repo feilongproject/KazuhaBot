@@ -1,4 +1,4 @@
-import { IMessageEx } from "./IMessageEx";
+import { IMessageEx } from "../lib/IMessageEx";
 
 export function status(msg: IMessageEx) {
 
@@ -9,6 +9,10 @@ export function status(msg: IMessageEx) {
             `\n生成图片：${global.botStatus.imageRenderNum}次` +
             `\n内存使用：${(process.memoryUsage().rss / 1024 / 1024).toFixed(2)}MB`
     });
+}
+
+export async function ping(msg: IMessageEx) {
+    msg.sendMsgEx({ content: await global.redis.ping() });
 }
 
 

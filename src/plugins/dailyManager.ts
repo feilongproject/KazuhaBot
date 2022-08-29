@@ -2,10 +2,10 @@ import fetch from "node-fetch";
 import fs from "fs";
 //import format from "date-format";
 //const format = require("date-format");
-import { render } from "./render";
-import log from "../system/logger";
-import { IMessageEx } from "../system/IMessageEx";
-import { getHeaders } from "./mihoyoAPI";
+import { render } from "../lib/render";
+import log from "../lib/logger";
+import { IMessageEx } from "../lib/IMessageEx";
+import { getHeaders } from "../lib/mihoyoAPI";
 
 
 export async function selectTemplate(msg: IMessageEx) {
@@ -32,7 +32,7 @@ export async function selectTemplate(msg: IMessageEx) {
     }
 }
 
-export async function onceCheck(msg: IMessageEx) {
+export async function onceDaily(msg: IMessageEx) {
     const miUid = await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
     const miRegion = await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
     const cookie = await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
@@ -161,7 +161,7 @@ export async function onceCheck(msg: IMessageEx) {
 }
 
 export async function changeDaily(msg: IMessageEx) {
-    if (msg.content.includes("开启")) {
+    if (msg.content.includes("开")) {
         return global.redis.hSet(`genshin:config:${msg.author.id}`, "dailyPush", 1).then(() => {
             return pushDaily();
         }).then(() => {
@@ -171,9 +171,9 @@ export async function changeDaily(msg: IMessageEx) {
             log.error(err);
         });
     }
-    if (msg.content.includes("关闭")) {
+    if (msg.content.includes("关")) {
         return global.redis.hSet(`genshin:config:${msg.author.id}`, "dailyPush", 0).then(() => {
-            return msg.sendMsgEx({ content: `已成功开启推送服务` });
+            return msg.sendMsgEx({ content: `已关闭开启推送服务` });
         }).catch(err => {
             log.error(err);
         });
@@ -219,7 +219,7 @@ export async function pushDaily() {
             //log.debug(`guildId:${guildId}`);
             if (!guildId) continue;
 
-            await onceCheck(new IMessageEx({
+            await onceDaily(new IMessageEx({
                 author: { id: userId },
                 id: msgId,
                 guild_id: guildId,

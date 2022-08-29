@@ -1,4 +1,4 @@
-import { IMessageEx } from "../system/IMessageEx";
+import { IMessageEx } from "../lib/IMessageEx";
 
 
 

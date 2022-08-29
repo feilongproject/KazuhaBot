@@ -3,11 +3,10 @@ import fs from "fs";
 import puppeteer from "puppeteer";
 import lodash from "lodash";
 
-import log from "../system/logger";
-import { RandQueue } from "../genshin/gacha";
-import { writeFileSyncEx } from "../system/common";
+import log from "./logger";
+import { RandQueue } from "../plugins/gacha";
+import { writeFileSyncEx } from "./common";
 
-const _path = process.cwd();
 //html模板
 const html: any = {};
 //截图数达到时重启浏览器 避免生成速度越来越慢
@@ -22,14 +21,14 @@ var shoting: any[] = [];
 export async function render(renderData: Render) {
 
     //log.debug(renderData);
-    if (renderData.render.template) renderData.render.resFile = `${_path}/resources/${renderData.app}/${renderData.type}/${renderData.render.template}.html`;
-    else renderData.render.resFile = `${_path}/resources/${renderData.app}/${renderData.type}/index.html`;
+    if (renderData.render.template) renderData.render.resFile = `${global._path}/resources/${renderData.app}/${renderData.type}/${renderData.render.template}.html`;
+    else renderData.render.resFile = `${global._path}/resources/${renderData.app}/${renderData.type}/index.html`;
 
     if (!renderData.render.saveFile)
-        renderData.render.saveFile = `${_path}/generate/html/${renderData.app}/${renderData.type}/${renderData.render.saveId}.html`;
+        renderData.render.saveFile = `${global._path}/generate/html/${renderData.app}/${renderData.type}/${renderData.render.saveId}.html`;
     if (!renderData.data.resPath)
-        renderData.data.resPath = `${_path}/resources`;
-    //renderData.data.resPath = `/resources`;//测试用
+        renderData.data.resPath = `${global._path}/resources`;
+    renderData.data.resPath = `/resources`;//测试用
 
     return await doRender(renderData).catch(err => {
         log.error(err);
@@ -78,7 +77,7 @@ export async function renderURL(renderData: RenderURL) {
 
     var { app, type, imgType, url, saveId } = renderData;
 
-    const savePath = `${_path}/generate/url/${app}/${type}/${saveId}.${imgType}`;
+    const savePath = `${global._path}/generate/url/${app}/${type}/${saveId}.${imgType}`;
 
 
     if (!(await browserInit())) return false;

@@ -1,6 +1,6 @@
 import fetch from "node-fetch"
-import { IMessageEx } from "../system/IMessageEx";
-import log from "../system/logger"
+import { IMessageEx } from "../lib/IMessageEx";
+import log from "../lib/logger"
 
 export async function bingCookie(msg: IMessageEx) {
 
@@ -41,8 +41,8 @@ export async function bingCookie(msg: IMessageEx) {
                     `\n使用cookie的命令有：` +
                     `\n【#删除ck】删除当前cookie` +
                     `\n【#体力】查询当前树脂` +
-                    `\n【#开启推送】开启体力大于120时推送` +
-                    `\n【#关闭推送】关闭体力推送`;
+                    `\n【#开启推送】开启体力定时推送` +
+                    `\n【#关闭推送】关闭体力定时推送`;
                 if (cookie.includes("cookie_token")) {
                     helpMsg += `\n【#签到】原神米游社签到`;
                     helpMsg += `\n【#关闭签到】关闭自动签到`;
@@ -69,7 +69,7 @@ export async function bingCookie(msg: IMessageEx) {
     });
 }
 
-export async function deleteCookie(msg: IMessageEx) {
+export async function delCookie(msg: IMessageEx) {
     global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie").then(cookie => {
         if (cookie) {
             global.redis.hDel(`genshin:config:${msg.author.id}`, "cookie").then(() => {

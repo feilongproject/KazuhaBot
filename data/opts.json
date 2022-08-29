@@ -13,7 +13,7 @@
                 "describe": "查询bot状态"
             }
         },
-        "cookie": {
+        "cookieManager": {
             "bingCookie": {
                 "reg": "ltoken=([^;]+;)|ltuid=([^;]+;)|cookie_token=([^;]+;)|login_ticket=([^;]+;)",
                 "fnc": "bingCookie",
@@ -47,7 +47,7 @@
                 "describe": "【定轨】武器池定轨"
             },
             "gachaLog": {
-                "reg": "^#(抽卡|抽奖|角色|武器|常驻|up)池(记录|祈愿|分析|统计)$",
+                "reg": "^#(抽卡|抽奖|角色|武器|常驻|up)池?(记录|祈愿|分析|统计)$",
                 "fnc": "gachaLog",
                 "describe": "（未实现）抽卡统计"
             },
@@ -57,31 +57,26 @@
                 "describe": "（未实现）抽卡统计录入"
             }
         },
-        "daily": {
+        "dailyManager": {
             "onceDaily": {
                 "reg": "^#(体力|树脂|查询体力|便笺|便签)$",
                 "fnc": "onceDaily",
                 "describe": "使用指令查询当前体力"
             },
             "changeDaily": {
-                "reg": "^#(开启|关闭)(体力|树脂)推送$",
+                "reg": "^#(开启|打开|关闭|关上)(体力|树脂)推送$",
                 "fnc": "changeDaily",
-                "describe": "开启体力推送"
+                "describe": "开关体力推送"
             },
-            "templateDaily": {
+            "selectTemplate": {
                 "reg": "^#体力模板(设置(.*)|列表)$",
-                "fnc": "templateDaily",
+                "fnc": "selectTemplate",
                 "describe": "体力模板设置"
             },
             "helpDaily": {
                 "reg": "^#(体力|树脂|cookie|ck|签到|原石)(帮助|说明|功能)$",
                 "fnc": "helpDaily",
                 "describe": "体力帮助"
-            },
-            "todayQuery": {
-                "reg": "^#(今日|今天|每日|我的)(素材|材料|天赋)$",
-                "fnc": "todayQuery",
-                "describe": "【#今日素材】查看今天可以刷什么角色的"
             },
             "signOnce": {
                 "reg": "^#签到$",
@@ -113,12 +108,17 @@
         },
         "strategy": {
             "strategy": {
-                "reg": "^#?(更新)?(\\S+)攻略([1-4])?$",
+                "reg": "^#(更新)?(\\S+)攻略([1-4])?$",
                 "fnc": "strategy",
                 "describe": "获取攻略图"
             }
         },
         "roleCard": {
+            "todayQuery": {
+                "reg": "^#(今日|今天|每日|我的)(素材|材料|天赋)$",
+                "fnc": "todayQuery",
+                "describe": "【#今日素材】查看今天可以刷什么角色的"
+            },
             "roleCard2": {
                 "reg": "^#(角色2|宝箱|成就|尘歌壶|家园|探索|探险|声望|探险度|探索度)$",
                 "fnc": "roleCard2",
@@ -143,9 +143,14 @@
                 "reg": "^#(五星|四星|5星|4星|命座|角色)(信息|阵容|统计)?$",
                 "fnc": "roleCardLife",
                 "describe": "【#四星，#五星】角色列表"
+            },
+            "talentList": {
+                "reg": "^#(我的)?(技能|天赋|武器|角色|练度|五星|四星|5星|4星)(汇总|统计|列表)(force|五|四|5|4|星)?[ |0-9]*$",
+                "fnc": "talentList",
+                "describe": "【#技能列表、#练度统计】查看所有角色技能列表"
             }
         },
-        "dashboard": {
+        "dashboardManager": {
             "dashboardHandle": {
                 "reg": "^#(更新|录入)?(.*)(详细|详情|面板|面版|圣遗物|伤害[1-7]?)(更新|帮助)?$",
                 "fnc": "dashboardHandle",
@@ -162,14 +167,14 @@
                 "describe": "【#角色】查看当前已获取面板数据的角色列表"
             }
         },
-        "calculator": {
+        "skillCalculator": {
             "skillCalculator": {
                 "reg": "^#(.*)(养成|计算|培养|养成计算)([0-9]|,|，| )*$",
                 "fnc": "skillCalculator",
                 "describe": "【#养成计算器】根据已有角色计算养成所需材料"
             }
         },
-        "BBS": {
+        "announcementManager": {
             "newsContentBBS": {
                 "reg": "^#(官方|原神)?(公告|资讯|活动)[0-9]*$",
                 "fnc": "newsContentBBS",
@@ -206,13 +211,6 @@
                 "reg": "^#图鉴(强制)?更新$",
                 "fnc": "bookUpdate",
                 "describe": "（未实现）更新图鉴资源"
-            }
-        },
-        "talent": {
-            "talentList": {
-                "reg": "^#(我的)?(技能|天赋|武器|角色|练度|五星|四星|5星|4星)(汇总|统计|列表)(force|五|四|5|4|星)?[ |0-9]*$",
-                "fnc": "talentList",
-                "describe": "【#技能列表、#练度统计】查看所有角色技能列表"
             }
         }
     }

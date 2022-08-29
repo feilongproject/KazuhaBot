@@ -1,18 +1,18 @@
 import lodash from "lodash";
 import fetch from "node-fetch";
 import moment from 'moment';
-import log from "../system/logger";
-import { IMessageEx } from "../system/IMessageEx";
-import { cacheJson, Format } from "../system/common";
-import { render } from "./render";
+import log from "../lib/logger";
+import { IMessageEx } from "../lib/IMessageEx";
+import { cacheJson, Format } from "../lib/common";
+import { render } from "../lib/render";
 import { idToRole, roleToId } from "./roleConver";
-import { getCharacterInfo } from "./data/getCharacter";
-import { calcData } from "./calc/dmgCalculator";
-import { attrMap, getArtis, getCharCfg } from "./calc/artifactsCalculator";
-import { AvatarMetaInfo, EquipList, GameInfoData } from "../../types/gameInfoData";
-import roles from "../../../data/role.json";
-import hashMap from "../../../data/meta/hashMap.json";
-import artifactsMap from "../../../data/meta/artifactsMap.json";
+import { getCharacterInfo } from "./components/data/getCharacter";
+import { calcData } from "./components/calc/dmgCalculator";
+import { attrMap, getArtis, getCharCfg } from "./components/calc/artifactsCalculator";
+import { AvatarMetaInfo, EquipList, GameInfoData } from "../types/gameInfoData";
+import roles from "../../data/role.json";
+import hashMap from "../../data/meta/hashMap.json";
+import artifactsMap from "../../data/meta/artifactsMap.json";
 
 moment.locale('zh-cn');
 const FIGHT_PROP_Map: { [id: string]: string } = {
@@ -42,7 +42,6 @@ const artifactsIdx: { [id: string]: number } = {
     EQUIP_RING: 4,
     EQUIP_DRESS: 5,
 }
-const _path = process.cwd();
 
 lodash.forEach(artifactsMap, (ds) => {
     (artifactsMap as ArtifactsMap)[ds.name] = ds;
@@ -52,7 +51,7 @@ export async function dashboardHandle(msg: IMessageEx): Promise<boolean> {
 
 
     if (msg.content.includes("帮助")) {
-        msg.sendMsgEx({ imagePath: `${_path}/resources/dashboard/help.jpg` })
+        msg.sendMsgEx({ imagePath: `${global._path}/resources/dashboard/help.jpg` })
         return true;
     }
 
@@ -74,7 +73,6 @@ export async function dashboardHandle(msg: IMessageEx): Promise<boolean> {
     const _reg = /^#(更新|录入)?(.*)(详细|详情|面板|面版|圣遗物|伤害[1-7]?)(更新)?$/.exec(msg.content.trim().split(" ")[0]);
     const _roleName = _reg ? _reg[2] : '';
     const roleId = roleToId(_roleName);
-    const data = await getUidData(uid);
 
     if (msg.content.includes("更新")) {
         const data = await getUidData(uid, true);
@@ -87,10 +85,11 @@ export async function dashboardHandle(msg: IMessageEx): Promise<boolean> {
         return true;
     }
 
-    if (!data || data.avatarInfoList.length == 0) {
+    const data = await getUidData(uid);
+    if (!data || !data.avatarInfoList || data.avatarInfoList.length == 0) {
         msg.sendMsgEx({
             content: `尚未获取任何角色数据，请打开游戏内角色展柜的【显示详情】后，等待5分钟重新获取面板`,
-            imagePath: `${_path}/resources/dashboard/help.jpg`,
+            imagePath: `${global._path}/resources/dashboard/help.jpg`,
         });
         return true;
     }
@@ -234,7 +233,7 @@ export async function profileArtis(msg: IMessageEx, opt: { uid: string, finalAva
         imgType: "jpeg",
         render: { saveId: msg.author.id, },
         data: {
-            elemLayout: `${_path}/resources/dashboard/common/elem.html`,
+            elemLayout: `${global._path}/resources/dashboard/common/elem.html`,
             bodyClass: `char-${profile.role.name}`,
             sys: {
                 scale: 1.3,
@@ -327,7 +326,7 @@ async function dashboardInfo(msg: IMessageEx, opt: { uid: string; roleId: number
         render: { saveId: msg.author.id, },
         data: {
             mode,
-            elemLayout: `${_path}/resources/dashboard/common/elem.html`,
+            elemLayout: `${global._path}/resources/dashboard/common/elem.html`,
             bodyClass: `char-${profile.role.name}`,
             sys: {
                 scale: 1.6,
