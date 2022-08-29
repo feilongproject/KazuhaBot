@@ -70,7 +70,7 @@ export class IMessageEx implements IMessage {
 
     async sendMsgEx(option: SendMsgOption) {
         global.botStatus.msgSendNum++;
-        const { ref, imagePath, content } = option;
+        const { ref, imagePath, content, initiative } = option;
         const { id, guild_id, channel_id } = this;
         if (imagePath) {
             var pushUrl =
@@ -78,7 +78,7 @@ export class IMessageEx implements IMessage {
                     `https://api.sgroup.qq.com/dms/${guild_id}/messages` :
                     `https://api.sgroup.qq.com/channels/${channel_id}/messages`;
             const formdata = new FormData();
-            formdata.append("msg_id", id);
+            if (!initiative) formdata.append("msg_id", id);
             if (content) formdata.append("content", content);
             formdata.append("file_image", fs.createReadStream(imagePath));
             return fetch(pushUrl, {
@@ -97,12 +97,12 @@ export class IMessageEx implements IMessage {
             if (this.messageType == "GUILD") {
                 return global.client.messageApi.postMessage(channel_id, {
                     content: content,
-                    msg_id: id,
+                    msg_id: initiative ? undefined : id,
                     message_reference: ref ? { message_id: id, } : undefined
                 });
             } else {
                 return global.client.directMessageApi.postDirectMessage(guild_id, {
-                    msg_id: id,
+                    msg_id: initiative ? undefined : id,
                     content: content,
                 });
             }
@@ -112,7 +112,8 @@ export class IMessageEx implements IMessage {
 
 
 interface SendMsgOption {
-    ref?: boolean,
-    imagePath?: string,
-    content?: string,
+    ref?: boolean;
+    imagePath?: string;
+    content?: string;
+    initiative?: boolean;
 }
