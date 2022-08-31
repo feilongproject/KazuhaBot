@@ -201,16 +201,31 @@
                 "describe": "（未实现）"
             }
         },
-        "handbook": {
+        "handbookManager": {
             "handbook": {
-                "reg": "^#.{1,}图鉴$",
+                "reg": "^#.*图鉴$",
                 "fnc": "handbook",
                 "describe": "（未实现）角色、食物、怪物、武器信息图鉴"
             },
-            "bookUpdate": {
+            "handbookHelp": {
+                "reg": "^#图鉴(命令|帮助|菜单|help|说明|功能|指令|使用说明)$",
+                "fnc": "handbookHelp",
+                "describe": "（未实现）查看插件的功能"
+            },
+            "handbookSetting": {
+                "reg": "^#图鉴设置(体力|帮助|匹配|戳一戳|模板|目录)?$",
+                "fnc": "handbookSetting",
+                "describe": "（未实现）图鉴设置"
+            },
+            "handbookVersion": {
+                "reg": "^#图鉴版本$",
+                "fnc": "handbookVersion",
+                "describe": "（未实现）图鉴版本介绍"
+            },
+            "handbookUpdate": {
                 "reg": "^#图鉴(强制)?更新$",
-                "fnc": "bookUpdate",
-                "describe": "（未实现）更新图鉴资源"
+                "fnc": "handbookUpdate",
+                "describe": "更新素材"
             }
         }
     }
