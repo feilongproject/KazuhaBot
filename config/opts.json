@@ -205,12 +205,12 @@
             "handbook": {
                 "reg": "^#.*图鉴$",
                 "fnc": "handbook",
-                "describe": "（未实现）角色、食物、怪物、武器信息图鉴"
+                "describe": "角色、食物、怪物、武器信息图鉴"
             },
             "handbookHelp": {
                 "reg": "^#图鉴(命令|帮助|菜单|help|说明|功能|指令|使用说明)$",
                 "fnc": "handbookHelp",
-                "describe": "（未实现）查看插件的功能"
+                "describe": "查看插件的功能"
             },
             "handbookSetting": {
                 "reg": "^#图鉴设置(体力|帮助|匹配|戳一戳|模板|目录)?$",

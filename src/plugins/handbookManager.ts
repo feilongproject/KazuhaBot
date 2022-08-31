@@ -3,7 +3,8 @@ import { exec } from "child_process";
 import log from "../lib/logger";
 import { IMessageEx } from "../lib/IMessageEx";
 import { roleToRole } from "./roleConver";
-
+import helpInfo from "../../data/help.json";
+import { render } from "../lib/render";
 
 const typeList = ["weapons", "foods", "enemys", "uncharteds", "artifacts", "items"];
 
@@ -56,18 +57,61 @@ export async function handbook(msg: IMessageEx) {
 
 }
 
-async function findAliasName(findName: string): Promise<{ name: string; type: string; } | null> {
-    for (const type of typeList) {
-        const path = `${global._path}/data/xy/alias/${type}.json`;
-        const typeMap: { [key: string]: string[] } = (await import(path)).default;
-        for (const key in typeMap) {
-            for (const aliasName of typeMap[key]) {
-                if (aliasName == findName)
-                    return { name: key, type };
-            }
+export async function handbookHelp(msg: IMessageEx) {
+    const isAdmin = await global.redis.hGet(`genshin:config:${msg.author.id}`, "admin");
+
+    const title = helpInfo.handbook.title;
+    var helpGroup: {
+        group: string;
+        list: { css: string; title: string; desc: string; }[];
+    }[] = [];
+    for (const group of helpInfo.handbook.list) {
+
+        if (group.auth == "admin" && isAdmin != "1") continue;
+
+        const _group: {
+            group: string;
+            list: { css: string; title: string; desc: string; }[];
+        } = { group: group.group, list: [], };
+        for (const item of group.list) {
+            _group.list.push({
+                css: item.icon ?
+                    `background-position:-${((item.icon - 1) % 10) * 50}px -${((item.icon - ((item.icon - 1) % 10) - 1) / 10) * 50}px` :
+                    `display:none`,
+                title: item.title,
+                desc: item.desc,
+            });
+
         }
+
+        helpGroup.push(_group);
+
     }
-    return null;
+    render({
+        app: "handbook",
+        type: "help",
+        imgType: "jpeg",
+        render: {
+            saveId: msg.author.id,
+
+        },
+        data: {
+            element: 'default',
+            sys: {
+                scale: 1.2,
+                copyright: `Created By Yunzai-Bot<span class="version">aaaaa</span> & Miao-Plugin<span class="version">bbbbb</span>`
+            },
+            defaultLayout: `${global._path}/resources/_common/layout/default.html`,
+            //...helpInfo.handbook,
+            title,
+            helpGroup,
+        },
+    }).then(savePic => {
+        if (typeof savePic == "string")
+            return msg.sendMsgEx({ imagePath: savePic });
+    }).catch(err => {
+        log.error(err);
+    });
 }
 
 
@@ -126,4 +170,18 @@ export async function handbookUpdate(msg: IMessageEx) {
             }
         });
     }
+}
+
+async function findAliasName(findName: string): Promise<{ name: string; type: string; } | null> {
+    for (const type of typeList) {
+        const path = `${global._path}/data/xy/alias/${type}.json`;
+        const typeMap: { [key: string]: string[] } = (await import(path)).default;
+        for (const key in typeMap) {
+            for (const aliasName of typeMap[key]) {
+                if (aliasName == findName)
+                    return { name: key, type };
+            }
+        }
+    }
+    return null;
 }
