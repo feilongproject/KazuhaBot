@@ -60,7 +60,9 @@ init().then(() => {
             if (opt.path != "err") {
                 const plugin = await import(`./plugins/${opt.path}.ts`);
                 if (typeof plugin[opt.fnc] == "function") {
-                    plugin[opt.fnc](msg);
+                    (plugin[opt.fnc] as PluginFnc)(msg).catch(err => {
+                        log.error(err);
+                    });
                 } else {
                     log.error(`not found function ${opt.fnc}() at "${global._path}/src/plugins/${opt.path}.ts"`);
                 }
@@ -73,4 +75,4 @@ init().then(() => {
 
 });
 
-
+type PluginFnc = (msg: IMessageEx) => Promise<any>
