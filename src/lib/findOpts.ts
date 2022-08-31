@@ -3,7 +3,7 @@ import log from "./logger";
 
 
 export async function findOpts(optStr: string): Promise<{ path: string; fnc: string; }> {
-    const fnc = await import("../../data/opts.json");
+    const fnc = await import("../../config/opts.json");
 
     const command: {
         [mainKey: string]: {

@@ -3,7 +3,7 @@ import { createClient } from 'redis';
 import schedule from "node-schedule";
 import fs from 'fs';
 import log from './lib/logger';
-import config from '../data/config.json';
+import config from '../config/config.json';
 import { pushDaily } from './plugins/dailyManager';
 
 export async function init() {
@@ -69,10 +69,11 @@ export async function init() {
         }
     });
 
-    fs.watchFile(`${global._path}/data/opts.json`, () => {
-        if (require.cache[`${global._path}/data/opts.json`]) {
+    const optFile = `${global._path}/config/opts.json`;
+    fs.watchFile(optFile, () => {
+        if (require.cache[optFile]) {
             log.mark(`指令配置文件正在进行热更新`);
-            delete require.cache[`${global._path}/data/opts.json`];
+            delete require.cache[optFile];
         }
     });
 

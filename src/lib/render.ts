@@ -28,7 +28,7 @@ export async function render(renderData: Render) {
         renderData.render.saveFile = `${global._path}/generate/html/${renderData.app}/${renderData.type}/${renderData.render.saveId}.html`;
     if (!renderData.data.resPath)
         renderData.data.resPath = `${global._path}/resources`;
-    renderData.data.resPath = `/resources`;//测试用
+    //renderData.data.resPath = `/resources`;//测试用
 
     return await doRender(renderData).catch(err => {
         log.error(err);
