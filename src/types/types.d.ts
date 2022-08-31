@@ -14,6 +14,10 @@ declare global {
     msgSendNum: number;
     imageRenderNum: number;
   }
+  var xyResources: {
+    [name: string]: string;
+  };
+
 
   interface IntentMessage {
     eventType: "MESSAGE_CREATE" | "PUBLIC_MESSAGE_DELETE" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_ADD" | "GUILD_MEMBER_UPDATE",

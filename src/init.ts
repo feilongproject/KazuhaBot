@@ -77,4 +77,29 @@ export async function init() {
         }
     });
 
+
+    const xyResPath = `${global._path}/resources/_xy`;
+    global.xyResources = { length: "0" };
+    traverseDir(xyResPath);
+    function traverseDir(fileDir: string) {
+        fs.readdir(fileDir, function (err, files) {
+            if (err) { console.warn(err, "读取文件夹错误！"); return; }
+            for (const unknownFile of files) {
+                if (unknownFile == ".git") continue;
+                if (unknownFile.endsWith(".png")) {
+                    global.xyResources[unknownFile.replace(".png", "")] = `${fileDir}/${unknownFile}`;
+                    global.xyResources.length = (parseInt(global.xyResources.length) + 1).toString();
+                }
+                else fs.stat(`${fileDir}/${unknownFile}`, function (eror, stats) {
+                    if (eror) { console.warn('获取文件stats失败'); return; }
+                    //console.log(`${fileDir}/${unknownFile}`);
+                    else if (stats.isDirectory()) {
+                        traverseDir(`${fileDir}/${unknownFile}`);
+                    }
+
+                });
+            }
+            log.info(`通过 ${fileDir} 文件夹，总计加载了${global.xyResources.length}个图鉴资源图片`);
+        });
+    }
 }
