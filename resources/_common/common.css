@@ -1,30 +1,30 @@
 @font-face {
-  font-family: "HWZS";
-  src: url("../../font/华文中宋.TTF");
+  font-family: 'HWZS';
+  src: url('../font/华文中宋.TTF');
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
-  font-family: "Number";
-  src: url("../../font/tttgbnumber.ttf");
+  font-family: 'Number';
+  src: url('../font/tttgbnumber.ttf');
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
-  font-family: "NZBZ";
-  src: url("../../font/NZBZ.ttf");
+  font-family: 'NZBZ';
+  src: url('../font/NZBZ.ttf');
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
-  font-family: "YS";
-  src: url("../../font/HYWH-85W.ttf");
+  font-family: 'YS';
+  src: url('../font/HYWH-85W.ttf');
   font-weight: normal;
   font-style: normal;
 }
 @font-face {
-  font-family: "YS2";
-  src: url("../../font/HYWH-65W.ttf");
+  font-family: 'YS2';
+  src: url('../font/HYWH-65W.ttf');
   font-weight: normal;
   font-style: normal;
 }
@@ -223,7 +223,7 @@ body {
 /* cont */
 .cont {
   border-radius: 10px;
-  background: url("../common/cont/card-bg.png") top left repeat-x;
+  background: url('../common/cont/card-bg.png') top left repeat-x;
   background-size: auto 100%;
   margin: 5px 15px 5px 10px;
   position: relative;
