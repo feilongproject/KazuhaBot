@@ -7,27 +7,15 @@ import config from '../config/config.json';
 import { pushDaily } from './plugins/dailyManager';
 
 export async function init() {
-
+    log.info(`机器人准备运行，正在初始化`);
     global._path = process.cwd();
-
     global.botStatus = {
         startTime: new Date(),
         msgSendNum: 0,
         imageRenderNum: 0,
     }
 
-    global.client = createOpenAPI(config.initConfig);
-    global.ws = createWebsocket(config.initConfig as any);
-
-    global.redis = createClient({
-        socket: {
-            host: "127.0.0.1",
-            port: 6379,
-        },
-        database: 0,
-    });
-    await global.redis.connect();
-
+    log.info(`初始化：正在创建定时任务`);
     //体力推送
     schedule.scheduleJob("0 0/1 * * * ? ", () => pushDaily());
     ////自动签到
@@ -37,29 +25,38 @@ export async function init() {
     ////原石统计推送
     //schedule.scheduleJob("0 0 10 L * ? ", () => YunzaiApps.dailyNote.ledgerTask());
 
-
-    global.saveGuildsTree = [];
-    client.meApi.meGuilds().then(guilds => {
-
-        for (const guild of guilds.data) {
-            log.info(`${guild.name}(${guild.id})`);
-            var _guild: SaveChannel[] = [];
-            global.client.channelApi.channels(guild.id).then(channels => {
-                for (const channel of channels.data) {
-                    if (channel.name != "") {
-                        log.info(`${guild.name}(${guild.id})-${channel.name}(${channel.id})-father:${channel.parent_id}`);
-                    }
-                    _guild.push({ name: channel.name, id: channel.id });
+    log.info(`初始化：正在检索图鉴资源`);
+    const xyResPath = `${global._path}/resources/_xy`;
+    global.xyResources = { length: "0" };
+    traverseDir(xyResPath);
+    function traverseDir(fileDir: string) {
+        try {
+            const files = fs.readdirSync(fileDir, { withFileTypes: true });
+            for (const unknownFile of files) {
+                //if (unknownFile == ".git") continue;
+                if (unknownFile.name == ".git") continue;
+                //if (unknownFile.endsWith(".png")) {
+                else if (unknownFile.name.endsWith(".png")) {
+                    global.xyResources[unknownFile.name.replace(".png", "")] = `${fileDir}/${unknownFile.name}`;
+                    global.xyResources.length = (parseInt(global.xyResources.length) + 1).toString();
+                    continue;
                 }
-                global.saveGuildsTree.push({ name: guild.name, id: guild.id, channel: _guild });
-            }).catch(err => {
-                log.error(err);
-            });
+                try {
+                    if (unknownFile.isDirectory()) traverseDir(`${fileDir}/${unknownFile.name}`);
+                } catch (err) {
+                    log.error('获取文件stats失败', err);
+                }
+            }
+            log.mark(`通过 ${fileDir} 文件夹，总计加载了${global.xyResources.length}个图鉴资源图片`);
+        } catch (err) {
+            if (err) {
+                console.warn(err, "读取文件夹错误！");
+                return;
+            }
         }
+    }
 
-
-    });
-
+    log.info(`初始化：正在创建热加载监听`);
     fs.watch(`${global._path}/src/plugins/`, (event, filename) => {
         //log.debug(event, filename);
         if (event != "change") return;
@@ -77,29 +74,33 @@ export async function init() {
         }
     });
 
+    log.info(`初始化：正在连接数据库`);
+    global.redis = createClient({
+        socket: { host: "127.0.0.1", port: 6379, },
+        database: 0,
+    });
+    await global.redis.connect().then(() => {
+        log.info(`初始化：redis数据库连接成功`);
+    }).catch(err => {
+        log.error(`初始化：redis数据库连接失败，正在退出程序\n${err}`);
+        process.exit();
+    });
 
-    const xyResPath = `${global._path}/resources/_xy`;
-    global.xyResources = { length: "0" };
-    traverseDir(xyResPath);
-    function traverseDir(fileDir: string) {
-        fs.readdir(fileDir, function (err, files) {
-            if (err) { console.warn(err, "读取文件夹错误！"); return; }
-            for (const unknownFile of files) {
-                if (unknownFile == ".git") continue;
-                if (unknownFile.endsWith(".png")) {
-                    global.xyResources[unknownFile.replace(".png", "")] = `${fileDir}/${unknownFile}`;
-                    global.xyResources.length = (parseInt(global.xyResources.length) + 1).toString();
-                }
-                else fs.stat(`${fileDir}/${unknownFile}`, function (eror, stats) {
-                    if (eror) { console.warn('获取文件stats失败'); return; }
-                    //console.log(`${fileDir}/${unknownFile}`);
-                    else if (stats.isDirectory()) {
-                        traverseDir(`${fileDir}/${unknownFile}`);
-                    }
+    log.info(`初始化：正在创建client与ws`);
+    global.client = createOpenAPI(config.initConfig);
+    global.ws = createWebsocket(config.initConfig as any);
 
-                });
+    log.info(`初始化：正在创建频道树`);
+    global.saveGuildsTree = [];
+    for (const guild of (await global.client.meApi.meGuilds()).data) {
+        log.mark(`${guild.name}(${guild.id})`);
+        var _guild: SaveChannel[] = [];
+        for (const channel of (await global.client.channelApi.channels(guild.id)).data) {
+            if (channel.name != "") {
+                log.mark(`${guild.name}(${guild.id})-${channel.name}(${channel.id})-father:${channel.parent_id}`);
             }
-            log.info(`通过 ${fileDir} 文件夹，总计加载了${global.xyResources.length}个图鉴资源图片`);
-        });
+            _guild.push({ name: channel.name, id: channel.id });
+        }
+        global.saveGuildsTree.push({ name: guild.name, id: guild.id, channel: _guild });
     }
 }
