@@ -213,9 +213,9 @@
                 "describe": "查看插件的功能"
             },
             "handbookSetting": {
-                "reg": "^#图鉴设置(体力|帮助|匹配|戳一戳|模板|目录)?$",
+                "reg": "^#图鉴设置(体力|帮助|目录)?(开启|关闭)?$",
                 "fnc": "handbookSetting",
-                "describe": "（未实现）图鉴设置"
+                "describe": "图鉴设置"
             },
             "handbookVersion": {
                 "reg": "^#图鉴版本$",

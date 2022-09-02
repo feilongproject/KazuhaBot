@@ -10,13 +10,15 @@ const typeList = ["weapons", "foods", "enemys", "uncharteds", "artifacts", "item
 
 export async function handbook(msg: IMessageEx) {
 
-    const aliasMap: { [key: string]: string[] } = (await import("../../data/xy/map.json")).default;
+    if ((await global.redis.hGet(`config:handbook`, "dirOpen")) == "1") {
+        const aliasMap: { [key: string]: string[] } = (await import("../../data/xy/map.json")).default;
 
-    for (const key in aliasMap) {
-        const mapReg = new RegExp(`#(${key})`);
-        if (mapReg.test(msg.content)) {
-            msg.sendMsgEx({ content: `请选择：\n${aliasMap[key].join("\n")}` });
-            return true;
+        for (const key in aliasMap) {
+            const mapReg = new RegExp(`#(${key})`);
+            if (mapReg.test(msg.content)) {
+                msg.sendMsgEx({ content: `请选择：\n${aliasMap[key].join("\n")}` });
+                return true;
+            }
         }
     }
 
@@ -91,10 +93,7 @@ export async function handbookHelp(msg: IMessageEx) {
         app: "handbook",
         type: "help",
         imgType: "jpeg",
-        render: {
-            saveId: msg.author.id,
-
-        },
+        render: { saveId: msg.author.id, },
         data: {
             element: 'default',
             sys: {
@@ -114,7 +113,56 @@ export async function handbookHelp(msg: IMessageEx) {
     });
 }
 
+export async function handbookSetting(msg: IMessageEx) {
 
+    if ((await global.redis.hGet(`genshin:config:${msg.author.id}`, "admin")) != "1") return true;
+
+    const rep = /^#图鉴设置(体力|帮助|目录)?(开启|关闭)?$/.exec(msg.content);
+    if (rep && (rep[1] && rep[2])) {
+        const enable = (rep[2] == "开启") ? "1" : "0";
+        var settingType = "";
+        switch (rep[1]) {
+            case "目录":
+                settingType = "dirOpen";
+                break;
+        }
+        if (settingType)
+            await global.redis.hSet(`config:handbook`, settingType, enable);
+    }
+
+
+
+    const dirOpen = (await global.redis.hGet(`config:handbook`, "dirOpen")) == "1";
+    const imgPack = fs.existsSync(`${global._path}/resources/_xy`);
+
+    render({
+        app: "setting",
+        type: "handbook",
+        imgType: "jpeg",
+        render: { saveId: msg.author.id, },
+        data: {
+            bg: "bg.png",
+            element: 'default',
+            setting: {
+                dirOpen,
+                imgPack,
+            },
+            sys: {
+                scale: 1.2,
+                copyright: `Created By Yunzai-Bot<span class="version">aaaaa</span> & Miao-Plugin<span class="version">bbbbb</span>`
+            },
+            defaultLayout: `${global._path}/resources/_common/layout/default.html`,
+            //...helpInfo.handbook,
+        },
+    }).then(savePic => {
+        if (typeof savePic == "string")
+            return msg.sendMsgEx({ imagePath: savePic }).then(() => {
+                log.mark(`图片已发送，位置${savePic}`);
+            });
+    }).catch(err => {
+        log.error(err);
+    });
+}
 
 export async function handbookUpdate(msg: IMessageEx) {
     var command = "";
