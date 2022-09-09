@@ -106,13 +106,6 @@
                 "describe": "统计所有原石札记"
             }
         },
-        "strategy": {
-            "strategy": {
-                "reg": "^#(更新)?(\\S+)攻略([1-4])?$",
-                "fnc": "strategy",
-                "describe": "获取攻略图"
-            }
-        },
         "roleCard": {
             "todayQuery": {
                 "reg": "^#(今日|今天|每日|我的)(素材|材料|天赋)$",
@@ -191,14 +184,21 @@
                 "describe": "（未实现）【#开启/关闭公告推送】"
             },
             "urlBBS": {
-                "reg": "(.*)bbs.mihoyo.com/ys(.*)/article(.*)",
+                "reg": "^(https?://)?bbs\\.mihoyo\\.com/ys/article/(\\d)+.*",
                 "fnc": "urlBBS",
-                "describe": "（未实现）"
+                "describe": "（无法使用）通过链接查看米游社帖子"
             },
             "seachBBS": {
-                "reg": "^#(米游社|mys)(.*)",
+                "reg": "^#(米游社|mys)(.*)(\\d$)?",
                 "fnc": "seachBBS",
                 "describe": "（未实现）"
+            }
+        },
+        "strategy": {
+            "strategy": {
+                "reg": "^#(更新)?(\\S+)攻略([1-4])?$",
+                "fnc": "strategy",
+                "describe": "获取攻略图"
             }
         },
         "handbookManager": {

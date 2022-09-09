@@ -2,7 +2,7 @@ import lodash from "lodash";
 import fetch from "node-fetch";
 import { IMessageEx } from "../lib/IMessageEx";
 import log from "../lib/logger";
-import { miGetEmoticon, miGetNewsList, miGetPostFull, PostFullPost } from "../lib/mihoyoAPI";
+import { miGetEmoticon, miGetNewsList, miGetPostFull, miSearchPosts, PostFullPost } from "../lib/mihoyoAPI";
 import { render, renderURL } from "../lib/render";
 
 
@@ -73,6 +73,52 @@ export async function newsListBBS(msg: IMessageEx) {
         }
     }).then(savePath => {
         if (savePath) msg.sendMsgEx({ imagePath: savePath });
+    }).catch(err => {
+        log.error(err);
+    });
+
+}
+
+/*
+bot无法接收url，无法使用
+ */
+export async function urlBBS(msg: IMessageEx) {
+
+}
+
+export async function seachBBS(msg: IMessageEx) {
+    const reg = msg.content.match(/^#(米游社|mys)(.*)(\d$)?/);
+    if (!reg) return true;
+    const searchContent = reg[2];
+    const searchPage = parseInt(reg[3]) * 1 || 0;
+    if (!searchContent) {
+        msg.sendMsgEx({ content: `请输入关键字，如#米游社七七攻略` });
+        return true;
+    }
+    const searchDatas = await miSearchPosts(searchContent);
+    if (!searchDatas) return true;
+    //res.data.posts.length
+    if (searchDatas.posts.length == 0) {
+        msg.sendMsgEx({ content: `搜索不到您要的结果，请换关键词尝试` });
+        return true;
+    }
+
+    const postFull = await miGetPostFull(searchDatas.posts[searchPage].post.post_id);
+    if (!postFull) return true;
+    const data = await detalData(postFull.post);
+    //log.debug(data);
+    render({
+        app: "announcement",
+        type: "announcement",
+        imgType: "jpeg",
+        render: { saveId: msg.author.id },
+        data: {
+            dataConent: data.post.content,
+            data,
+        }
+    }).then(savePath => {
+        if (savePath)
+            msg.sendMsgEx({ imagePath: savePath });
     }).catch(err => {
         log.error(err);
     });
