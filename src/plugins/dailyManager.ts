@@ -163,7 +163,7 @@ export async function onceDaily(msg: IMessageEx) {
 export async function changeDaily(msg: IMessageEx) {
     if (msg.content.includes("开")) {
         return global.redis.hSet(`genshin:config:${msg.author.id}`, "dailyPush", 1).then(() => {
-            return pushDaily();
+            return taskPushDaily();
         }).then(() => {
             return msg.sendMsgEx({ content: `已成功开启推送服务` });
 
@@ -189,7 +189,7 @@ export async function helpDaily(msg: IMessageEx) {
     });
 }
 
-export async function pushDaily() {
+export async function taskPushDaily() {
 
     log.mark(`体力推送检查中`);
     var pushQueue: string[] = [];

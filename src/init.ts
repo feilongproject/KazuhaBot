@@ -4,7 +4,7 @@ import schedule from "node-schedule";
 import fs from 'fs';
 import log from './lib/logger';
 import config from '../config/config.json';
-import { pushDaily } from './plugins/dailyManager';
+import { taskPushDaily } from './plugins/dailyManager';
 
 export async function init() {
     log.info(`机器人准备运行，正在初始化`);
@@ -17,7 +17,7 @@ export async function init() {
 
     log.info(`初始化：正在创建定时任务`);
     //体力推送
-    schedule.scheduleJob("0 0/1 * * * ? ", () => pushDaily());
+    schedule.scheduleJob("0 0/1 * * * ? ", () => taskPushDaily());
     ////自动签到
     //schedule.scheduleJob(BotConfig.pushTask.signTime, () => YunzaiApps.dailyNote.signTask());
     ////官方公告推送
