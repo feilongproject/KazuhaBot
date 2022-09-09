@@ -191,7 +191,7 @@
             "seachBBS": {
                 "reg": "^#(米游社|mys)(.*)(\\d$)?",
                 "fnc": "seachBBS",
-                "describe": "（未实现）"
+                "describe": "搜索米游社帖子"
             }
         },
         "strategy": {
