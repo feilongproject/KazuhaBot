@@ -28,7 +28,11 @@ export async function init() {
     log.info(`初始化：正在检索图鉴资源`);
     const xyResPath = `${global._path}/resources/_xy`;
     global.xyResources = { length: "0" };
-    traverseDir(xyResPath);
+    if (fs.existsSync("xyResPath")) {
+        traverseDir(xyResPath);
+    } else {
+        log.warn(`初始化：图鉴资源未找到，跳过检索`);
+    }
     function traverseDir(fileDir: string) {
         try {
             const files = fs.readdirSync(fileDir, { withFileTypes: true });
@@ -50,7 +54,7 @@ export async function init() {
             log.mark(`通过 ${fileDir} 文件夹，总计加载了${global.xyResources.length}个图鉴资源图片`);
         } catch (err) {
             if (err) {
-                console.warn(err, "读取文件夹错误！");
+                console.warn("读取文件夹错误！", err);
                 return;
             }
         }
