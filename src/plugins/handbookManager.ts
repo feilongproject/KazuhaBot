@@ -10,7 +10,7 @@ const typeList = ["weapons", "foods", "enemys", "uncharteds", "artifacts", "item
 
 export async function handbook(msg: IMessageEx) {
 
-    if ((await global.redis.hGet(`config:handbook`, "dirOpen")) == "1") {
+    if ((await global.redis.hGet(`config`, "handbook:dirOpen")) == "1") {
         const aliasMap: { [key: string]: string[] } = (await import("../../data/xy/map.json")).default;
 
         for (const key in aliasMap) {
@@ -127,12 +127,9 @@ export async function handbookSetting(msg: IMessageEx) {
                 break;
         }
         if (settingType)
-            await global.redis.hSet(`config:handbook`, settingType, enable);
+            await global.redis.hSet(`config`, `handbook:${settingType}`, enable);
     }
-
-
-
-    const dirOpen = (await global.redis.hGet(`config:handbook`, "dirOpen")) == "1";
+    const dirOpen = (await global.redis.hGet(`config`, "handbook:dirOpen")) == "1";
     const imgPack = fs.existsSync(`${global._path}/resources/_xy`);
 
     render({
