@@ -1,8 +1,7 @@
 import { IMessageEx } from "../lib/IMessageEx";
 
-export function status(msg: IMessageEx) {
-
-    msg.sendMsgEx({
+export async function status(msg: IMessageEx) {
+    return msg.sendMsgEx({
         content: `------状态------` +
             `\n运行时间：${timeConver(new Date().getTime() - global.botStatus.startTime.getTime())}` +
             `\n发送消息：${global.botStatus.msgSendNum}条` +
