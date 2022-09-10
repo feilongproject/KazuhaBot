@@ -5,6 +5,7 @@ import fs from 'fs';
 import log from './lib/logger';
 import config from '../config/config.json';
 import { taskPushDaily } from './plugins/dailyManager';
+import { taskPushNews } from './plugins/announcementManager';
 
 export async function init() {
     log.info(`机器人准备运行，正在初始化`);
@@ -21,7 +22,7 @@ export async function init() {
     ////自动签到
     //schedule.scheduleJob(BotConfig.pushTask.signTime, () => YunzaiApps.dailyNote.signTask());
     ////官方公告推送
-    //schedule.scheduleJob("0 3,33 * * * ? ", () => YunzaiApps.newsListBBS.pushNewsTask());
+    schedule.scheduleJob("0 0/30 * * * ? ", () => taskPushNews());
     ////原石统计推送
     //schedule.scheduleJob("0 0 10 L * ? ", () => YunzaiApps.dailyNote.ledgerTask());
 

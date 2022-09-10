@@ -1,6 +1,6 @@
 import lodash from "lodash";
 import fetch from "node-fetch";
-import { IMessageEx } from "../lib/IMessageEx";
+import { IMessageEx, sendImage } from "../lib/IMessageEx";
 import log from "../lib/logger";
 import { miGetEmoticon, miGetNewsList, miGetPostFull, miSearchPosts, PostFullPost } from "../lib/mihoyoAPI";
 import { render, renderURL } from "../lib/render";
@@ -123,6 +123,87 @@ export async function seachBBS(msg: IMessageEx) {
         log.error(err);
     });
 
+}
+
+export async function changePushTask(msg: IMessageEx) {
+    if (msg.messageType != "GUILD") return true;
+    const value = msg.content.includes("开启") ? true : false;
+    await global.redis.hSet("config:newsPush", parseInt(msg.channel_id), `${value}`).then((v) => {
+        if (value) return msg.sendMsgEx({
+            content: `原神米游社公告推送已开启` + `\n每30分钟自动检测一次是否存在新更新公告` + `\n如有更新自动发送公告内容至此。`
+        });
+        else {
+            return msg.sendMsgEx({ content: `原神米游社公告推送已关闭` });
+        }
+    }).catch(err => {
+        log.error(err);
+    });
+}
+
+export async function taskPushNews() {
+    const msgId = await global.redis.get("lastestMsgId");
+    if (!msgId) return;
+
+    const sendChannels: string[] = [];
+    const _newsPushChannels = await global.redis.hGetAll("config:newsPush").catch(err => { log.error(err); });
+    if (!_newsPushChannels) return;
+
+    for (const channel in _newsPushChannels) {
+        if (_newsPushChannels[channel] == "true")
+            sendChannels.push(channel);
+    }
+    if (sendChannels.length == 0) return;
+
+    log.mark(`官方公告检查中`);
+    const ignoreReg = /冒险助力礼包|纪行|预下载|脚本外挂|集中反馈|作品展示|同人|已开奖|一图流|云·原神|招募|OST/;
+    const pagesData = [{ type: "公告", list: (await miGetNewsList(1))?.list }, { type: "资讯", list: (await miGetNewsList(3))?.list }];
+    const postIds: string[] = [];
+
+    for (const pageData of pagesData) {
+        if (!pageData.list) continue;
+        for (const page of pageData.list) {
+            if (ignoreReg.test(page.post.subject)) continue;
+            if (new Date().getTime() / 1000 - page.post.created_at > 3600) continue;
+            if (await global.redis.get(`mysNews:${page.post.post_id}`) == `${true}`) continue;
+            await global.redis.set(`mysNews:${page.post.post_id}`, `${true}`, { EX: 3600 * 2 });
+            postIds.push(page.post.post_id);
+        }
+    }
+    for (const postId of postIds) {
+        const postFull = await miGetPostFull(postId);
+        if (!postFull) return;
+        const data = await detalData(postFull.post);
+        //log.debug(data);
+        await render({
+            app: "announcement",
+            type: "announcement",
+            imgType: "jpeg",
+            render: { saveId: "system" },
+            data: {
+                dataConent: data.post.content,
+                data,
+            }
+        }).then(savePath => {
+            if (savePath) {
+                const _sendQueue: Promise<any>[] = [];
+                for (const sendChannel of sendChannels) {
+                    _sendQueue.push(sendImage({
+                        msgId,
+                        imagePath: savePath,
+                        channelId: sendChannel,
+                        messageType: "GUILD"
+                    }));
+                }
+                return Promise.all(_sendQueue).catch(err => {
+                    log.error(err);
+                });
+            }
+        }).catch(err => {
+            log.error(err);
+        });
+    }
+
+    log.mark(`官方公告检查完成`);
 }
 
 async function detalData(data: PostFullPost) {

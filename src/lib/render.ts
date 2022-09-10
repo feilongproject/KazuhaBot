@@ -43,7 +43,7 @@ async function doRender(renderData: Render): Promise<string | null> {
     html[`${app}.${type}`] = fs.readFileSync(render.resFile!, "utf8");
 
     var tmpHtml = template.render(html[`${app}.${type}`], data);
-    writeFileSyncEx(render.saveFile!, tmpHtml)
+    writeFileSyncEx(render.saveFile!, tmpHtml);
 
     if (!(await browserInit())) return null;
     if (!global.browser) return null;

@@ -178,10 +178,15 @@
                 "fnc": "newsListBBS",
                 "describe": "【#官方公告列表】米游社官方公告列表"
             },
-            "pushManagerBBS": {
-                "reg": "^#(开启公告推送|关闭公告推送)$",
-                "fnc": "pushManagerBBS",
-                "describe": "（未实现）【#开启/关闭公告推送】"
+            "changePushTask": {
+                "reg": "^#(开启|关闭)公告推送$",
+                "fnc": "changePushTask",
+                "describe": "【#开启/关闭公告推送】"
+            },
+            "taskPushNews": {
+                "reg": "^#测试公告推送$",
+                "fnc": "taskPushNews",
+                "describe": "【#开启/关闭公告推送】"
             },
             "urlBBS": {
                 "reg": "^(https?://)?bbs\\.mihoyo\\.com/ys/article/(\\d)+.*",
