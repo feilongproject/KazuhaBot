@@ -73,26 +73,11 @@ export class IMessageEx implements IMessage {
         const { ref, imagePath, content, initiative } = option;
         const { id, guild_id, channel_id } = this;
         if (imagePath) {
-            var pushUrl =
-                this.messageType == "DIRECT" ?
-                    `https://api.sgroup.qq.com/dms/${guild_id}/messages` :
-                    `https://api.sgroup.qq.com/channels/${channel_id}/messages`;
-            const formdata = new FormData();
-            if (!initiative) formdata.append("msg_id", id);
-            if (content) formdata.append("content", content);
-            formdata.append("file_image", fs.createReadStream(imagePath));
-            return fetch(pushUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": formdata.getHeaders()["content-type"],
-                    "Authorization": `Bot ${config.initConfig.appID}.${config.initConfig.token}`,
-                }, body: formdata
-            }).then(res => { return res.json(); }).then(body => {
-                if (body.code) log.error(body);
-                return body;
-            }).catch(error => {
-                log.error(error);
-            });
+            option.messageType = option.messageType || this.messageType;
+            option.msgId = option.msgId || this.id;
+            option.guildId = option.guildId || this.guild_id;
+            option.channelId = option.channelId || this.channel_id;
+            return sendImage(option);
         } else {
             if (this.messageType == "GUILD") {
                 return global.client.messageApi.postMessage(channel_id, {
@@ -110,10 +95,40 @@ export class IMessageEx implements IMessage {
     }
 }
 
+export async function sendImage(option: SendMsgOption) {
+    const { messageType, initiative, content, imagePath, msgId, guildId, channelId } = option;
+    if (!imagePath) return;
+    var pushUrl =
+        messageType == "DIRECT" ?
+            `https://api.sgroup.qq.com/dms/${guildId}/messages` :
+            `https://api.sgroup.qq.com/channels/${channelId}/messages`;
+    const formdata = new FormData();
+    if (!initiative) formdata.append("msg_id", msgId);
+    if (content) formdata.append("content", content);
+    formdata.append("file_image", fs.createReadStream(imagePath));
+    return fetch(pushUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": formdata.getHeaders()["content-type"],
+            "Authorization": `Bot ${config.initConfig.appID}.${config.initConfig.token}`,
+        }, body: formdata
+    }).then(res => {
+        return res.json();
+    }).then(body => {
+        if (body.code) log.error(body);
+        return body;
+    }).catch(error => {
+        log.error(error);
+    });
+}
 
 interface SendMsgOption {
     ref?: boolean;
     imagePath?: string;
     content?: string;
     initiative?: boolean;
+    messageType?: "DIRECT" | "GUILD";
+    msgId?: string;
+    guildId?: string;
+    channelId?: string;
 }
