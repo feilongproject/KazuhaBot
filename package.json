@@ -5,7 +5,6 @@
     "main": "src/index.ts",
     "scripts": {
         "dev": "clear && nodemon",
-        "build": "./node_modules/.bin/tsc -p ./tsconfig.json",
         "start": "ts-node src/index.ts"
     },
     "keywords": [],
