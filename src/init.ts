@@ -18,7 +18,7 @@ export async function init() {
 
     log.info(`初始化：正在创建定时任务`);
     //体力推送
-    schedule.scheduleJob("0 0/1 * * * ? ", () => taskPushDaily());
+    schedule.scheduleJob("0 0/10 * * * ? ", () => taskPushDaily());
     ////自动签到
     //schedule.scheduleJob(BotConfig.pushTask.signTime, () => YunzaiApps.dailyNote.signTask());
     ////官方公告推送
