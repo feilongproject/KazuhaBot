@@ -8,10 +8,10 @@ import { taskPushDaily } from './plugins/dailyManager';
 import { taskPushNews } from './plugins/announcementManager';
 
 export async function init() {
-    global.log = _log;
+    console.log(`机器人准备运行，正在初始化`);
 
-    log.info(`机器人准备运行，正在初始化`);
     global._path = process.cwd();
+    global.log = _log;
     global.botStatus = {
         startTime: new Date(),
         msgSendNum: 0,
