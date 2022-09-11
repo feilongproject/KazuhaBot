@@ -1,8 +1,7 @@
 import lodash from "lodash";
 import { Format } from "../../../lib/common";
-import log from "../../../lib/logger";
-import { AnalyzeArtifact, ArtifactStat } from "../../dashboardManager";
 import { getCharacterInfo } from "../data/getCharacter";
+import { AnalyzeArtifact, ArtifactStat } from "../../dashboardManager";
 
 const charCfg: {
     [name: string]: {

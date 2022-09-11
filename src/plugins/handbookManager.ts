@@ -1,10 +1,9 @@
 import fs from "fs";
 import { exec } from "child_process";
-import log from "../lib/logger";
-import { IMessageEx } from "../lib/IMessageEx";
-import { roleToRole } from "./roleConver";
-import helpInfo from "../../data/help.json";
 import { render } from "../lib/render";
+import { roleToRole } from "./roleConver";
+import { IMessageEx } from "../lib/IMessageEx";
+import helpInfo from "../../data/help.json";
 
 const typeList = ["weapons", "foods", "enemys", "uncharteds", "artifacts", "items"];
 

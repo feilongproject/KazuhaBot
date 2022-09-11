@@ -2,12 +2,14 @@ import { createOpenAPI, createWebsocket, OpenAPI } from 'qq-guild-bot';
 import { createClient } from 'redis';
 import schedule from "node-schedule";
 import fs from 'fs';
-import log from './lib/logger';
+import _log from './lib/logger';
 import config from '../config/config.json';
 import { taskPushDaily } from './plugins/dailyManager';
 import { taskPushNews } from './plugins/announcementManager';
 
 export async function init() {
+    global.log = _log;
+
     log.info(`机器人准备运行，正在初始化`);
     global._path = process.cwd();
     global.botStatus = {

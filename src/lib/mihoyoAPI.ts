@@ -2,7 +2,6 @@ import md5 from "md5";
 import lodash from "lodash";
 import fetch from "node-fetch";
 import { redisCache } from "./common";
-import log from "./logger";
 
 
 export async function miGetRecordIndex(uid: string, region: string, cookie: string): Promise<RecordIndexData | null> {

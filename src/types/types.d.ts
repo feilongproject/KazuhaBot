@@ -1,6 +1,7 @@
-import { RedisClientType } from "@redis/client";
+import log4js from "log4js";
 import { Browser } from "puppeteer";
-import { Ark, Embed, IMember, IMessage, IUser, MessageAttachment, OpenAPI, WebsocketClient } from "qq-guild-bot"
+import { RedisClientType } from "@redis/client";
+import { IMessage, OpenAPI, WebsocketClient } from "qq-guild-bot"
 
 declare global {
   var _path: string;
@@ -18,6 +19,7 @@ declare global {
     [name: string]: string;
   };
 
+  var log: log4js.Logger;
 
   interface IntentMessage {
     eventType: "MESSAGE_CREATE" | "PUBLIC_MESSAGE_DELETE" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_ADD" | "GUILD_MEMBER_UPDATE",

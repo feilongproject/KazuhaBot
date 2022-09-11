@@ -1,6 +1,3 @@
-
-
-
 interface ShowAvatarInfoList {
     avatarId: number;
     level: number;

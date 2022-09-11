@@ -1,13 +1,12 @@
 import lodash from "lodash";
 import fetch from "node-fetch";
 import moment from 'moment';
-import log from "../lib/logger";
+import { render } from "../lib/render";
 import { IMessageEx } from "../lib/IMessageEx";
 import { cacheJson, Format } from "../lib/common";
-import { render } from "../lib/render";
 import { idToRole, roleToId } from "./roleConver";
-import { getCharacterInfo } from "./components/data/getCharacter";
 import { calcData } from "./components/calc/dmgCalculator";
+import { getCharacterInfo } from "./components/data/getCharacter";
 import { attrMap, getArtis, getCharCfg } from "./components/calc/artifactsCalculator";
 import { AvatarMetaInfo, EquipList, GameInfoData } from "../types/gameInfoData";
 import roles from "../../data/role.json";

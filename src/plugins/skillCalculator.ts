@@ -1,8 +1,7 @@
-import { AvatarsSkillList, miGetAvatarDetail, miGetAvatarSkills, miGetAvatarCompute, miGetRecordCharacters, AvatarComputeConsume } from "../lib/mihoyoAPI";
 import { render } from "../lib/render";
-import { idToRole, roleToId, roleToRole } from "./roleConver";
 import { IMessageEx } from "../lib/IMessageEx";
-import log from "../lib/logger";
+import { roleToId, roleToRole } from "./roleConver";
+import { AvatarsSkillList, miGetAvatarDetail, miGetAvatarSkills, miGetAvatarCompute, miGetRecordCharacters, AvatarComputeConsume } from "../lib/mihoyoAPI";
 
 
 //五星

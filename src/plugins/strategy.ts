@@ -1,10 +1,9 @@
+import fs from "fs";
 import lodash from "lodash";
 import fetch from "node-fetch";
-import fs from "fs";
-import { idToRole, roleToId } from "./roleConver";
-import log from "../lib/logger";
 import { IMessageEx } from "../lib/IMessageEx";
 import { writeFileSyncEx } from "../lib/common";
+import { idToRole, roleToId } from "./roleConver";
 
 
 const collectionId = [

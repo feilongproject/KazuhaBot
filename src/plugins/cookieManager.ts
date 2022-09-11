@@ -1,6 +1,5 @@
 import fetch from "node-fetch"
 import { IMessageEx } from "../lib/IMessageEx";
-import log from "../lib/logger"
 
 export async function bingCookie(msg: IMessageEx) {
 

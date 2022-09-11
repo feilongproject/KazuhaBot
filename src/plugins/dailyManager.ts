@@ -1,9 +1,6 @@
-import fetch from "node-fetch";
 import fs from "fs";
-//import format from "date-format";
-//const format = require("date-format");
+import fetch from "node-fetch";
 import { render } from "../lib/render";
-import log from "../lib/logger";
 import { IMessageEx } from "../lib/IMessageEx";
 import { getHeaders } from "../lib/mihoyoAPI";
 

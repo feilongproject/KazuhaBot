@@ -1,9 +1,6 @@
-import lodash from "lodash";
-import fetch from "node-fetch";
+import { render } from "../lib/render";
 import { IMessageEx, sendImage } from "../lib/IMessageEx";
-import log from "../lib/logger";
 import { miGetEmoticon, miGetNewsList, miGetPostFull, miSearchPosts, PostFullPost } from "../lib/mihoyoAPI";
-import { render, renderURL } from "../lib/render";
 
 
 var emoticon: Map<any, any> | null = null;

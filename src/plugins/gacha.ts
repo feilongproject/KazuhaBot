@@ -1,12 +1,8 @@
 import { render } from "../lib/render";
-import lodash from "lodash";
-import fs from "fs";
-import log from "../lib/logger";
-
-import gachaPool from "../../data/gachaPool.json";
+import { IMessageEx } from "../lib/IMessageEx";
 import role from "../../data/role.json";
 import weapon from "../../data/weapon.json";
-import { IMessageEx } from "../lib/IMessageEx";
+import gachaPool from "../../data/gachaPool.json";
 
 //五星基础概率(0-10000)
 const chance5 = 60;

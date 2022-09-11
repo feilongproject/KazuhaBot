@@ -1,5 +1,4 @@
 import fs from "fs";
-import log from "../../../lib/logger";
 import { eleMap } from "../calc/calc-meta";
 
 

@@ -1,6 +1,4 @@
 import fs from "fs";
-import log from "./logger";
-
 
 export function writeFileSyncEx(filePath: string, data: string | Buffer, options?: fs.WriteFileOptions) {
 

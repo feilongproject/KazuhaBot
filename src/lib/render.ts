@@ -1,11 +1,8 @@
-import template from "art-template";
 import fs from "fs";
 import puppeteer from "puppeteer";
-import lodash from "lodash";
-
-import log from "./logger";
-import { RandQueue } from "../plugins/gacha";
+import template from "art-template";
 import { writeFileSyncEx } from "./common";
+import { RandQueue } from "../plugins/gacha";
 
 //html模板
 const html: any = {};

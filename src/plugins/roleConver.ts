@@ -1,7 +1,6 @@
 import roles from "../../data/role.json";
-import shortNames from "../../data/shortName.json";
 import daily from "../../data/daily.json";
-import log from "../lib/logger";
+import shortNames from "../../data/shortName.json";
 
 export function roleToId(name: string): number | null {
     if (!name) return null;

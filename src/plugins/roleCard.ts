@@ -1,11 +1,9 @@
 import lodash from "lodash";
-import fetch from "node-fetch";
-import { miGetAvatarDetail, AvatarDetailData, Avatars, miGetRecordCharacters, miGetRecordIndex, OrganizedAvatar, RecordCharactersData, RecordIndexData } from "../lib/mihoyoAPI";
 import { render } from "../lib/render";
-import { roleToElement, roleToRole, roleToTalent, shortName, weekToTalent } from "./roleConver";
-import { redisCache, sleep } from "../lib/common";
 import { IMessageEx } from "../lib/IMessageEx";
-import log from "../lib/logger";
+import { redisCache, sleep } from "../lib/common";
+import { roleToElement, roleToTalent, shortName, weekToTalent } from "./roleConver";
+import { miGetAvatarDetail, AvatarDetailData, Avatars, miGetRecordCharacters, miGetRecordIndex, OrganizedAvatar, RecordCharactersData } from "../lib/mihoyoAPI";
 
 var areaName = ["", "", "", "雪山", "", "", "层岩巨渊", "层岩地下"];
 

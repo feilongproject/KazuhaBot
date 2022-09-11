@@ -1,11 +1,6 @@
 import { init } from './init';
 import { findOpts } from './lib/findOpts';
-import log from './lib/logger';
 import { IMessageEx } from './lib/IMessageEx';
-import fs from "fs";
-
-
-var checkTimes = 0;
 
 init().then(() => {
 

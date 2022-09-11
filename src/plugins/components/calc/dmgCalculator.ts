@@ -1,10 +1,9 @@
 import fs from 'fs'
 import lodash from 'lodash'
 import { Format } from '../../../lib/common';
-import log from '../../../lib/logger';
+import { attrMap, eleBaseDmg, eleMap, erType } from './calc-meta';
 import { AnalyzeMain, AnalyzeArtifact } from "../../dashboardManager";
 import { CharacterInfo, getCharacterInfo } from '../data/getCharacter';
-import { attrMap, eleBaseDmg, eleMap, erType } from './calc-meta';
 
 export async function calcData(profile: AnalyzeMain, char: CharacterInfo, enemyLv = 91, mode = 'profile', dmgIdx = 0) {
     const charCalcData = await getCharCalcRule(char.name);

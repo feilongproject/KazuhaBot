@@ -1,8 +1,7 @@
 import fetch from "node-fetch";
-import { getHeaders } from "../lib/mihoyoAPI";
 import { render } from "../lib/render";
+import { getHeaders } from "../lib/mihoyoAPI";
 import { IMessageEx } from "../lib/IMessageEx";
-import log from "../lib/logger";
 
 
 const color = ["#597ea0", "#bd9a5a", "#7a6da7", "#d56565", "#70b2b4", "#73a9c6", "#739970"];

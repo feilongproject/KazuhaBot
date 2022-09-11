@@ -3,10 +3,6 @@ import fetch from 'node-fetch';
 import FormData from 'form-data';
 import { Ark, Embed, IMember, IMessage, IUser, MessageAttachment } from "qq-guild-bot";
 import config from '../../config/config.json';
-import log from './logger';
-
-
-
 
 export class IMessageEx implements IMessage {
     id: string;
