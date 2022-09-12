@@ -162,7 +162,7 @@ export async function changeDaily(msg: IMessageEx) {
         return global.redis.hSet(`genshin:config:${msg.author.id}`, "dailyPush", 1).then(() => {
             return taskPushDaily();
         }).then(() => {
-            return msg.sendMsgEx({ content: `已开启推送服务` });
+            return msg.sendMsgEx({ content: `已开启体力推送服务` });
 
         }).catch(err => {
             log.error(err);
@@ -170,7 +170,7 @@ export async function changeDaily(msg: IMessageEx) {
     }
     if (msg.content.includes("关")) {
         return global.redis.hSet(`genshin:config:${msg.author.id}`, "dailyPush", 0).then(() => {
-            return msg.sendMsgEx({ content: `已关闭推送服务` });
+            return msg.sendMsgEx({ content: `已关闭体力推送服务` });
         }).catch(err => {
             log.error(err);
         });
