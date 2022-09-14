@@ -34,9 +34,9 @@ init().then(() => {
 
         global.redis.set("lastestMsgId", msg.id, { EX: 5 * 60 });
         global.redis.hSet(`genshin:config:${msg.author.id}`, "guildId", msg.guild_id);
-        const opts = msg.content.trim().split(" ");
+        const opts = msg.content.trim();//.split(" ");
         //findOpts(msg.content).then(opt => {
-        const opt = await findOpts(opts[0]);
+        const opt = await findOpts(opts);
         log.debug(`./plugins/${opt.path}:${opt.fnc}`);
 
         try {
