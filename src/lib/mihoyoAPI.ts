@@ -158,7 +158,7 @@ export async function miSearchPosts(keyword: string, gids = 2, size = 20) {
         return res.json();
     }).then((json: MihoyoAPI<PostSearch>) => {
         if (json.data) return json.data;
-        else throw new Error("not found data");
+        else throw json;
     }).catch(err => {
         log.error(err);
         return null;
@@ -176,6 +176,60 @@ export async function miGetEmoticon() {
         log.error(err);
     });
 }
+
+export async function miGetSignRewardInfo(uid: string, region: string, cookie: string) {
+
+    const headers = getHeaders(`act_id=e202009291139501&region=${region}&uid=${uid}`) as any;
+    headers.Cookie = cookie;
+    return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?act_id=e202009291139501&region=${region}&uid=${uid}`, {
+        method: "GET",
+        headers,
+    }).then(res => {
+        return res.json();
+    }).then((json: MihoyoAPI<SignRewardInfo>) => {
+        if (json.data) return json.data;
+        else throw json;
+    }).catch(err => {
+        log.error(err);
+    });
+}
+
+export async function miGetSignRewardHome(uid: string, region: string, cookie: string) {
+
+    const headers = getHeaders(`act_id=e202009291139501&region=${region}&uid=${uid}`, ``, true) as any;
+    headers.Cookie = cookie;
+    return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/home?act_id=e202009291139501&region=${region}&uid=${uid}`, {
+        method: "GET",
+        headers,
+    }).then(res => {
+        return res.json();
+    }).then((json: MihoyoAPI<SignRewardHome>) => {
+        console.log(json);
+        if (json.data) return json.data;
+        else throw json;
+    }).catch(err => {
+        log.error(err);
+    });
+}
+
+export async function miGetSignRewardSign(uid: string, region: string, cookie: string) {
+
+    const headers = getHeaders(``, `{"act_id":"e202009291139501","region":"${region}","uid":"${uid}"}`, true) as any;
+    headers.Cookie = cookie;
+    return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign`, {
+        method: "POST",
+        body: `{"act_id":"e202009291139501","region":"${region}","uid":"${uid}"}`,
+        headers,
+    }).then(res => {
+        return res.json();
+    }).then((json/* : MihoyoAPI<SignRewardSign> */) => {
+        log.debug(json);
+        if (json.data) return json.data;
+        else throw json;
+    }).catch(err => {
+        log.error(err);
+    });
+}//SignRewardHome
 
 /* async function abyssAll(roleArr: Avatars[], uid: string, server: string, cookie: string) {
 
@@ -267,12 +321,22 @@ export async function miGetEmoticon() {
 } */
 
 export function getHeaders(query = '', body = '', sign = false) {
+    function getdevice() {
+        return `Yz-${md5(query).substring(0, 5)}`;
+    }
     if (sign) return {
-        'x-rpc-app_version': '2.3.0',
-        'x-rpc-client_type': "5",
+        'x-rpc-app_version': '2.36.1',
+        'x-rpc-client_type': 5,
         'x-rpc-device_id': getGuid(),
-        'User-Agent': ' miHoYoBBS/2.3.0',
-        "DS": getDsSign(),
+        'User-Agent': `Mozilla/5.0 (Linux; Android 12; ${getdevice()}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.36.1`,
+        'X-Requested-With': 'com.mihoyo.hyperion',
+        'x-rpc-platform': 'android',
+        'x-rpc-device_model': getdevice(),
+        'x-rpc-device_name': getdevice(),
+        'x-rpc-channel': 'miyousheluodi',
+        'x-rpc-sys_version': '6.0.1',
+        Referer: "https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html?bbs_auth_required=true&act_id=e202009291139501&utm_source=bbs&utm_medium=mys&utm_campaign=icon",
+        DS: getDsSign(),
     }
     else return {
         'x-rpc-app_version': '2.26.1',
@@ -289,7 +353,7 @@ function getGuid() {
 };
 
 function getDsSign() {
-    const n = 'h8w582wxwgqvahcdkpvdhbh2w9casgfl';
+    const n = 'YVEIkzDFNHLeKXLxzqCA9TzxCpWwbIbk';
     const t = Math.round(new Date().getTime() / 1000);
     const r = lodash.sampleSize('abcdefghijklmnopqrstuvwxyz0123456789', 6).join('');
     const DS = md5(`salt=${n}&t=${t}&r=${r}`);
@@ -784,4 +848,24 @@ export interface Emoticon {
         is_available: boolean;
     }[];
     recently_emoticon?: any;
+}
+
+export interface SignRewardInfo {
+    total_sign_day: number;
+    today: string;
+    is_sign: boolean;
+    first_bind: boolean;
+    is_sub: boolean;
+    month_first: boolean;
+    sign_cnt_missed: number;
+}
+
+export interface SignRewardHome {
+    month: number,
+    awards: {
+        icon: string,
+        name: string,
+        cnt: number,
+    }[],
+    resign: boolean,
 }

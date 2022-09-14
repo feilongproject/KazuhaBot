@@ -2,7 +2,8 @@ import fs from "fs";
 import fetch from "node-fetch";
 import { render } from "../lib/render";
 import { IMessageEx } from "../lib/IMessageEx";
-import { getHeaders } from "../lib/mihoyoAPI";
+import { getHeaders, miGetSignRewardHome, miGetSignRewardInfo, miGetSignRewardSign } from "../lib/mihoyoAPI";
+import { sleep } from "../lib/common";
 
 
 export async function selectTemplate(msg: IMessageEx) {
@@ -229,6 +230,78 @@ export async function taskPushDaily() {
         }
     });
     log.mark(`体力推送检查完成`);
+
+}
+
+export async function onceSign(msg?: IMessageEx, task?: { uid: string; region: string; cookie: string; }) {
+
+    var _uid: string | undefined = undefined;
+    var _region: string | undefined = undefined;
+    var _cookie: string | undefined = undefined;
+
+    if (msg) {
+        _uid = task?.uid || await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
+        _region = task?.region || await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
+        _cookie = task?.cookie || await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
+    }
+    if (!(_uid && _region && _cookie)) return;
+    const data = await miGetSignRewardInfo(_uid, _region, _cookie);
+    if (!data) return true;
+    await miGetSignRewardHome(_uid, _region, _cookie);
+    //await miGetSignRewardSign(_uid, _region, _cookie);
+
+
+}
+
+export async function changeSign(msg: IMessageEx) {
+
+    const ststus = msg.content.includes("开") ? 1 : 0;
+    return global.redis.hSet(`genshin:config:${msg.author.id}`, "signPush", ststus).then(() => {
+        return onceSign(msg);
+    }).then(() => {
+        return msg.sendMsgEx({ content: `已${ststus ? "开启" : "关闭"}签到推送服务` });
+    }).catch(err => {
+        log.error(err);
+    });
+}
+
+export async function taskPushSign() {
+
+    log.mark(`签到推送准备中`);
+    const userConfigs: string[] = await global.redis.keys(`genshin:config:*`).catch(err => {
+        log.error(err);
+        return ([] as string[]);
+    });
+    if (userConfigs.length == 0) {
+        log.mark("签到推送失败：未找到任何用户设置信息");
+        return;
+    }
+
+    const userInfos: { uid: string, guildId: string }[] = [];
+    const hGetQueue: Promise<void>[] = [];
+    for (const userConfig of userConfigs) {
+        hGetQueue.push(global.redis.hmGet(userConfig, ["signPush", "guildId"]).then(value => {
+            if ((value[0] == "1") && value[1]) userInfos.push({
+                uid: userConfig.match(/\d.*/)![0],
+                guildId: value[1],
+            });
+        }));
+    }
+    if (userInfos.length == 0) {
+        log.mark("签到推送失败：用户尚未启用推送");
+        return;
+    }
+    log.mark(`本次检查共有${userInfos.length}个用户使用签到推送`);
+
+    setInterval(() => {
+        onceSign
+    }, 10 * 1000);
+
+    var ttl = await global.redis.ttl("lastestMsgId");
+    while (ttl <= 60 * 4) {
+        await sleep(10);
+        ttl = await global.redis.ttl("lastestMsgId");
+    }
 
 }
 

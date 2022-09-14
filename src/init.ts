@@ -4,7 +4,7 @@ import schedule from "node-schedule";
 import fs from 'fs';
 import _log from './lib/logger';
 import config from '../config/config.json';
-import { taskPushDaily } from './plugins/dailyManager';
+import { taskPushDaily, taskPushSign } from './plugins/dailyManager';
 import { taskPushNews } from './plugins/announcementManager';
 
 export async function init() {
@@ -22,7 +22,7 @@ export async function init() {
     //体力推送
     schedule.scheduleJob("0 0/10 * * * ? ", () => taskPushDaily());
     ////自动签到
-    //schedule.scheduleJob(BotConfig.pushTask.signTime, () => YunzaiApps.dailyNote.signTask());
+    schedule.scheduleJob("0 0 12 * * ?", () => taskPushSign());
     ////官方公告推送
     schedule.scheduleJob("0 0/30 * * * ? ", () => taskPushNews());
     ////原石统计推送
