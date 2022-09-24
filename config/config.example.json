@@ -1,0 +1,14 @@
+{
+    "initConfig": {
+        "appID": "APP_ID",
+        "token": "APP_TOKEN",
+        "intents": [
+            "GUILD_MESSAGES",
+            "DIRECT_MESSAGE"
+        ],
+        "sandbox": false
+    },
+    "databaseConfig": {
+        "unixsocket": "/run/redis/redis-server.sock"
+    }
+}
