@@ -1,7 +1,9 @@
 import log4js from "log4js";
 import { Browser } from "puppeteer";
 import { RedisClientType } from "@redis/client";
-import { IMessage, OpenAPI, WebsocketClient } from "qq-guild-bot"
+import { IMessage } from "qq-guild-bot";
+import { OpenAPI, WebsocketClient } from "./qq-guild-bot";
+
 
 declare global {
   var _path: string;

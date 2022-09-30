@@ -1,4 +1,4 @@
-import { createOpenAPI, createWebsocket, OpenAPI } from 'qq-guild-bot';
+import { createOpenAPI, createWebsocket } from 'qq-guild-bot';
 import { createClient } from 'redis';
 import schedule from "node-schedule";
 import fs from 'fs';
