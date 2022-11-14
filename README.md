@@ -5,3 +5,7 @@
 ## 使用方法见[Wiki](https://github.com/feilongproject/KazuhaBot/wiki)
 
 
+## 赞助
+~居然有人来赞助我这个蒟蒻啊啊啊天哪真的非常感谢如果能够赞助的话就可以支持bot开发我也会有动力开发下去的只需要电费就可以我这个电脑因为太蒻用不了多少电的~
+
+![afdian-飞龙project](https://user-images.githubusercontent.com/43880786/201690277-1a7abac5-f232-4ddd-af87-91649d9b2d72.jpg)
