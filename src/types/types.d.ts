@@ -24,7 +24,7 @@ declare global {
   var log: log4js.Logger;
 
   interface IntentMessage {
-    eventType: "MESSAGE_CREATE" | "PUBLIC_MESSAGE_DELETE" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_ADD" | "GUILD_MEMBER_UPDATE",
+    eventType: "MESSAGE_CREATE" | "PUBLIC_MESSAGE_DELETE" | "GUILD_MEMBER_REMOVE" | "GUILD_MEMBER_ADD" | "GUILD_MEMBER_UPDATE" | "DIRECT_MESSAGE_CREATE",
     eventId: string,
     msg: IMessage & GUILD_MEMBER,
   }
