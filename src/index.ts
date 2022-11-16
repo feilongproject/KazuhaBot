@@ -5,11 +5,11 @@ import { IMessageEx } from './lib/IMessageEx';
 init().then(() => {
 
     global.ws.on('GUILD_MESSAGES', async (data: IntentMessage) => {
-        const msg = new IMessageEx(data.msg, "GUILD");// = data.msg as any;
-        global.redis.set("lastestMsgId", msg.id, { EX: 5 * 60 });
-        if (!msg.content) return;
 
         if (data.eventType == "MESSAGE_CREATE") {
+            const msg = new IMessageEx(data.msg, "GUILD");// = data.msg as any;
+            global.redis.set("lastestMsgId", msg.id, { EX: 5 * 60 });
+            if (!msg.content) return;
             const opts = msg.content.trim().split(" ");
             const opt = await findOpts(opts[0]);
             log.debug(`./plugins/${opt.path}:${opt.fnc}`);
@@ -31,6 +31,7 @@ init().then(() => {
     });
 
     global.ws.on("DIRECT_MESSAGE", async (data: IntentMessage) => {
+        if (data.eventType != 'DIRECT_MESSAGE_CREATE') return;
         const msg = new IMessageEx(data.msg, "DIRECT");// = data.msg as any;
         global.redis.set("lastestMsgId", msg.id, { EX: 5 * 60 });
         global.redis.hSet(`genshin:config:${msg.author.id}`, "guildId", msg.guild_id);
