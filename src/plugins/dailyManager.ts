@@ -1,8 +1,7 @@
 import fs from "fs";
-import fetch from "node-fetch";
 import { render } from "../lib/render";
 import { IMessageEx } from "../lib/IMessageEx";
-import { getHeaders, miGetSignRewardHome, miGetSignRewardInfo, miGetSignRewardSign } from "../lib/mihoyoAPI";
+import { miGetDailyNote, miGetSignRewardHome, miGetSignRewardInfo } from "../lib/mihoyoAPI";
 import { sleep } from "../lib/common";
 
 
@@ -41,26 +40,11 @@ export async function onceDaily(msg: IMessageEx) {
         msg.sendMsgEx({ content: `未找到cookie，请绑定cookie!` });
         return;
     }
-    /**
-     * TODO
-     * 统一API后，getHeaders函数不导出，目前暂时使用
-     */
-    const headers = getHeaders(`role_id=${miUid}&server=${miRegion}`) as any;
-    headers.Cookie = cookie;
-    const data = await fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?role_id=${miUid}&server=${miRegion}`, {
-        headers,
-    }).then(res => {
-        return res.json();
-    }).then((json: MihoyoAPI<DailyNoteData>) => {
-        if (json.retcode == 0) {
-            return json.data;
-        } else {
-            msg.sendMsgEx({ content: `获取信息出错，错误详情：\n${json.message}` });
-            throw new Error(JSON.stringify(json));
-        }
+    const data = await miGetDailyNote(miUid, miRegion, cookie).catch(err => {
+        msg.sendMsgEx({ content: `获取信息出错，错误详情：\n${err}` });
+        return null;
     });
     if (!data) return;
-
 
     //树脂
     //log.debug(`将于${converTime(data.resin_recovery_time)}后回复`, data.resin_recovery_time);
@@ -336,40 +320,4 @@ function converTime(time: number) {
         (_h > 0 ? `${_h}时` : ``) +
         (_m > 0 ? `${_m}分` : ``)/*  +
         (_s > 0 ? `${_s}秒` : ``) */;
-}
-
-interface DailyNoteData {
-    current_resin: number;
-    max_resin: 160;
-    resin_recovery_time: number;
-    finished_task_num: number;
-    total_task_num: 4;
-    is_extra_task_reward_received: boolean;
-    remain_resin_discount_num: number;
-    resin_discount_num_limit: number;
-    current_expedition_num: number;
-    max_expedition_num: number;
-    expeditions: {
-        avatar_side_icon: string;
-        status: string;
-        remained_time: number;
-    }[];
-    current_home_coin: number;                 //洞天宝钱现在
-    max_home_coin: number;                     //洞天宝钱最高
-    home_coin_recovery_time: number;           //洞天宝钱回复时间
-    calendar_url: string;                      //日历链接
-    transformer: {                             //参量质变仪
-        obtained: boolean;                     //是否获取
-        recovery_time: {
-            Day: number;
-            Hour: number;
-            Minute: number;
-            Second: number;
-            reached: boolean;
-        };
-        wiki: string;
-        noticed: boolean;
-        latest_job_id: string;
-    };
-
 }

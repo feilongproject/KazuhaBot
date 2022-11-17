@@ -4,6 +4,20 @@ import fetch from "node-fetch";
 import { redisCache } from "./common";
 
 
+export async function miGetDailyNote(uid: string, region: string, cookie: string) {
+    const headers = getHeaders(`role_id=${uid}&server=${region}`) as any;
+    headers.Cookie = cookie;
+    return await fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?role_id=${uid}&server=${region}`, {
+        headers,
+    }).then(res => {
+        return res.json();
+    }).then((json: MihoyoAPI<DailyNoteData>) => {
+        //log.debug(json.message);
+        if (json.retcode == 0) return json.data;
+        else throw json;
+    });
+}
+
 export async function miGetRecordIndex(uid: string, region: string, cookie: string): Promise<RecordIndexData | null> {
     const cacheIndex = await redisCache("r", `cache:talent:${uid}`, "index");
     if (cacheIndex) return JSON.parse(cacheIndex);
@@ -368,12 +382,47 @@ function getDs(q = '', b = '') {
     return `${t},${r},${DS}`;
 };
 
+export interface DailyNoteData {
+    current_resin: number;
+    max_resin: 160;
+    resin_recovery_time: number;
+    finished_task_num: number;
+    total_task_num: 4;
+    is_extra_task_reward_received: boolean;
+    remain_resin_discount_num: number;
+    resin_discount_num_limit: number;
+    current_expedition_num: number;
+    max_expedition_num: number;
+    expeditions: {
+        avatar_side_icon: string;
+        status: string;
+        remained_time: number;
+    }[];
+    current_home_coin: number;                 //洞天宝钱现在
+    max_home_coin: number;                     //洞天宝钱最高
+    home_coin_recovery_time: number;           //洞天宝钱回复时间
+    calendar_url: string;                      //日历链接
+    transformer: {                             //参量质变仪
+        obtained: boolean;                     //是否获取
+        recovery_time: {
+            Day: number;
+            Hour: number;
+            Minute: number;
+            Second: number;
+            reached: boolean;
+        };
+        wiki: string;
+        noticed: boolean;
+        latest_job_id: string;
+    };
+};
+
 export interface AvatarCompute {
     avatar_consume: AvatarComputeConsume[],
     avatar_skill_consume: AvatarComputeConsume[],
     weapon_consume: AvatarComputeConsume[],
     reliquary_consume: AvatarComputeConsume[],
-}
+};
 export interface AvatarComputeConsume {
     isTalent?: boolean;
     id: number;
@@ -381,7 +430,7 @@ export interface AvatarComputeConsume {
     icon: string;
     num: number;
     wiki_url: string;
-}
+};
 
 export interface Avatars {
     id: number;
