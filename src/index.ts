@@ -9,9 +9,8 @@ init().then(() => {
         if (data.eventType == "MESSAGE_CREATE") {
             const msg = new IMessageEx(data.msg, "GUILD");// = data.msg as any;
             global.redis.set("lastestMsgId", msg.id, { EX: 5 * 60 });
-            if (!msg.content) return;
-            const opts = msg.content.trim().split(" ");
-            const opt = await findOpts(opts[0]);
+
+            const opt = await findOpts(msg);
             log.debug(`./plugins/${opt.path}:${opt.fnc}`);
             try {
                 if (opt.path != "err") {
@@ -36,10 +35,7 @@ init().then(() => {
         global.redis.set("lastestMsgId", msg.id, { EX: 5 * 60 });
         global.redis.hSet(`genshin:config:${msg.author.id}`, "guildId", msg.guild_id);
 
-        if (!msg.content) return;
-        const opts = msg.content.trim();//.split(" ");
-        //findOpts(msg.content).then(opt => {
-        const opt = await findOpts(opts);
+        const opt = await findOpts(msg);
         log.debug(`./plugins/${opt.path}:${opt.fnc}`);
 
         try {

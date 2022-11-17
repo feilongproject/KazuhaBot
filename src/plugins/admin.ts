@@ -1,3 +1,4 @@
+import { IMember } from "qq-guild-bot";
 import { IMessageEx } from "../lib/IMessageEx";
 
 export async function status(msg: IMessageEx) {
@@ -14,6 +15,16 @@ export async function ping(msg: IMessageEx) {
     msg.sendMsgEx({ content: await global.redis.ping() });
 }
 
+
+export async function isAdmin(uid: string, iMember?: IMember): Promise<boolean> {
+    if (adminId.includes(uid)) return true;
+    if (iMember && (iMember.roles.includes("2") || iMember.roles.includes("4")))
+        return true;
+    return await redis.hGet("auth", uid).then(auth => {
+        if (auth == "admin") return true;
+        return false;
+    });
+}
 
 function timeConver(time: number) {
     time /= 1000;

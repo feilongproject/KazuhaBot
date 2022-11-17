@@ -20,6 +20,7 @@ export class IMessageEx implements IMessage {
     ark: Ark;
     seq?: number;
     seq_in_channel?: string;
+    src_guild_id?: string;
 
     guild_name?: string;
     channel_name?: string;

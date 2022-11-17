@@ -5,11 +5,13 @@
             "ping": {
                 "reg": "^#ping$",
                 "fnc": "ping",
+                "type": ["DIRECT"],
                 "describe": "检测数据库是否正常"
             },
             "status": {
                 "reg": "^#(状态|status)$",
                 "fnc": "status",
+                "type": ["DIRECT"],
                 "describe": "查询bot状态"
             }
         },
@@ -17,21 +19,29 @@
             "bingCookie": {
                 "reg": "ltoken=([^;]+;)|ltuid=([^;]+;)|cookie_token=([^;]+;)|login_ticket=([^;]+;)",
                 "fnc": "bingCookie",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "绑定cookie"
             },
             "queryCookie": {
                 "reg": "^#我的(ck|cookie)$",
                 "fnc": "queryCookie",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "查询用户绑定cookie"
             },
             "delCookie": {
                 "reg": "^#删除(Cookie|cookie|ck)$",
                 "fnc": "delCookie",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "删除用户当前cookie"
             },
             "checkCookie": {
                 "reg": "^#(检查(ck|cookie)|(ck|cookie)检查)$",
                 "fnc": "checkCookie",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "检查cookie"
             }
         },
@@ -39,21 +49,29 @@
             "gacha": {
                 "reg": "^#(10|[武器池]*[十]+|抽|单)[连抽卡奖][123武器池]*$",
                 "fnc": "gacha",
+                "type": ["GUILD"],
+                "permission": "anyone",
                 "describe": "一次十连抽卡"
             },
             "gachaWeaponBing": {
                 "reg": "^#(武器)?定轨$",
                 "fnc": "gachaWeaponBing",
+                "type": ["GUILD"],
+                "permission": "anyone",
                 "describe": "【定轨】武器池定轨"
             },
             "gachaLog": {
                 "reg": "^#(抽卡|抽奖|角色|武器|常驻|up)池?(记录|祈愿|分析|统计)$",
                 "fnc": "gachaLog",
+                "type": ["GUILD"],
+                "permission": "anyone",
                 "describe": "（未实现）抽卡统计"
             },
             "gachaLogRecord": {
                 "reg": "(.*)authkey_ver(.*)",
                 "fnc": "gachaLogRecord",
+                "type": ["GUILD"],
+                "permission": "anyone",
                 "describe": "（未实现）抽卡统计录入"
             }
         },
@@ -61,36 +79,50 @@
             "onceDaily": {
                 "reg": "^#(体力|树脂|查询体力|便笺|便签)$",
                 "fnc": "onceDaily",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "使用指令查询当前体力"
             },
             "changeDaily": {
                 "reg": "^#(开启|打开|关闭|关上)(体力|树脂)推送$",
                 "fnc": "changeDaily",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "开关体力推送"
             },
             "selectTemplate": {
                 "reg": "^#体力模板(设置(.*)|列表)$",
                 "fnc": "selectTemplate",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "体力模板设置"
             },
             "helpDaily": {
                 "reg": "^#(体力|树脂|cookie|ck|签到|原石)(帮助|说明|功能)$",
                 "fnc": "helpDaily",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "体力帮助"
             },
             "signOnce": {
                 "reg": "^#签到$",
                 "fnc": "signOnce",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "（未实现）当日米游社签到一次"
             },
             "signCheck": {
                 "reg": "^#(开启签到推送|关闭签到推送)$",
                 "fnc": "signCheck",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "（未实现）开启/关闭签到推送"
             },
             "signAuto": {
                 "reg": "^#(开启|关闭)(米游社|自动)*签到$",
                 "fnc": "signAuto",
+                "type": ["DIRECT"],
+                "permission": "anyone",
                 "describe": "（未实现）开启/关闭自动签到"
             }
         },
@@ -98,11 +130,15 @@
             "ledgerPart": {
                 "reg": "^#(原石|札记)([0-9]|[一二两三四五六七八九十]+)*月{0,1}$",
                 "fnc": "ledgerPart",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "统计指定月的原石札记，未指定为当月"
             },
             "ledgerCount": {
                 "reg": "^#(原石|札记)统计$",
                 "fnc": "ledgerCount",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "统计所有原石札记"
             }
         },
@@ -110,36 +146,50 @@
             "todayQuery": {
                 "reg": "^#(今日|今天|每日|我的)(素材|材料|天赋)$",
                 "fnc": "todayQuery",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#今日素材】查看今天可以刷什么角色的"
             },
             "roleCard2": {
                 "reg": "^#(角色2|宝箱|成就|尘歌壶|家园|探索|探险|声望|探险度|探索度)$",
                 "fnc": "roleCard2",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#探索，#声望】展示原神角色大地图探险数据"
             },
             "roleCard3": {
                 "reg": "^#(角色3|角色卡片)$",
                 "fnc": "roleCard3",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#角色卡片】展示原神角色数据卡片，横向"
             },
             "roleCard1": {
                 "reg": "^#((角色|查询|查询角色|角色查询|人物)[\\+|＋]?([1|2|5][0-9]{8})?|([uid|UID]?[\\+|＋]?[1|2|5][0-9]{8}))$",
                 "fnc": "roleCard1",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#角色，#104070461】展示原神角色数据，竖向"
             },
             "roleCardWeapon": {
                 "reg": "^#([五|四|5|4]星)?武器[信息|阵容|统计]?$",
                 "fnc": "roleCardWeapon",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#武器】角色已装备武器列表"
             },
             "roleCardLife": {
                 "reg": "^#(五星|四星|5星|4星|命座|角色)(信息|阵容|统计)?$",
                 "fnc": "roleCardLife",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#四星，#五星】角色列表"
             },
             "talentList": {
                 "reg": "^#(我的)?(技能|天赋|武器|角色|练度|五星|四星|5星|4星)(汇总|统计|列表)(force|五|四|5|4|星)?[ |0-9]*$",
                 "fnc": "talentList",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#技能列表、#练度统计】查看所有角色技能列表"
             }
         },
@@ -147,16 +197,22 @@
             "dashboardHandle": {
                 "reg": "^#(更新|录入)?(.*)(详细|详情|面板|面版|圣遗物|伤害[1-7]?)(更新|帮助)?$",
                 "fnc": "dashboardHandle",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#角色面板】角色面板详情"
             },
             "enemyLv": {
                 "reg": "^#(敌人|怪物)等级\\d{1,3}$",
                 "fnc": "dashboardHandle",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#角色】 设置伤害计算中目标敌人的等级"
             },
             "getDashboardAll": {
                 "reg": "^#(面板角色|角色面板|面板)(列表)?$",
                 "fnc": "dashboardHandle",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#角色】查看当前已获取面板数据的角色列表"
             }
         },
@@ -164,6 +220,8 @@
             "skillCalculator": {
                 "reg": "^#(.*)(养成|计算|培养|养成计算)([0-9]|,|，| )*$",
                 "fnc": "skillCalculator",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#养成计算器】根据已有角色计算养成所需材料"
             }
         },
@@ -171,31 +229,41 @@
             "newsContentBBS": {
                 "reg": "^#(官方|原神)?(公告|资讯|活动)[0-9]*$",
                 "fnc": "newsContentBBS",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#官方公告】米游社官方公告"
             },
             "newsListBBS": {
                 "reg": "^#(公告|资讯|活动)列表$",
                 "fnc": "newsListBBS",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "【#官方公告列表】米游社官方公告列表"
             },
             "changePushTask": {
                 "reg": "^#(开启|关闭)公告推送$",
                 "fnc": "changePushTask",
+                "type": ["DIRECT", "GUILD"],
                 "describe": "【#开启/关闭公告推送】"
             },
             "taskPushNews": {
                 "reg": "^#测试公告推送$",
                 "fnc": "taskPushNews",
+                "type": ["DIRECT", "GUILD"],
                 "describe": "【#开启/关闭公告推送】"
             },
             "urlBBS": {
                 "reg": "^(https?://)?bbs\\.mihoyo\\.com/ys/article/(\\d)+.*",
                 "fnc": "urlBBS",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "（无法使用）通过链接查看米游社帖子"
             },
             "seachBBS": {
                 "reg": "^#(米游社|mys)(.*)(\\d$)?",
                 "fnc": "seachBBS",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "搜索米游社帖子"
             }
         },
@@ -203,6 +271,8 @@
             "strategy": {
                 "reg": "^#(更新)?(\\S+)攻略([1-4])?$",
                 "fnc": "strategy",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "获取攻略图"
             }
         },
@@ -210,26 +280,32 @@
             "handbook": {
                 "reg": "^#.*图鉴$",
                 "fnc": "handbook",
+                "type": ["DIRECT", "GUILD"],
                 "describe": "角色、食物、怪物、武器信息图鉴"
             },
             "handbookHelp": {
                 "reg": "^#图鉴(命令|帮助|菜单|help|说明|功能|指令|使用说明)$",
                 "fnc": "handbookHelp",
+                "type": ["DIRECT", "GUILD"],
+                "permission": "anyone",
                 "describe": "查看插件的功能"
             },
             "handbookSetting": {
                 "reg": "^#图鉴设置(体力|帮助|目录)?(开启|关闭)?$",
                 "fnc": "handbookSetting",
+                "type": ["DIRECT", "GUILD"],
                 "describe": "图鉴设置"
             },
             "handbookVersion": {
                 "reg": "^#图鉴版本$",
                 "fnc": "handbookVersion",
+                "type": ["DIRECT", "GUILD"],
                 "describe": "（未实现）图鉴版本介绍"
             },
             "handbookUpdate": {
                 "reg": "^#图鉴(强制)?更新$",
                 "fnc": "handbookUpdate",
+                "type": ["DIRECT", "GUILD"],
                 "describe": "更新素材"
             }
         }

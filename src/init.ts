@@ -10,6 +10,7 @@ import { taskPushNews } from './plugins/announcementManager';
 export async function init() {
     console.log(`机器人准备运行，正在初始化`);
 
+    global.adminId = ["7681074728704576201", "9540810258706627170"];
     global._path = process.cwd();
     global.log = _log;
     global.botStatus = {

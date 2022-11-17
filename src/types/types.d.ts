@@ -8,6 +8,7 @@ import { OpenAPI, WebsocketClient } from "./qq-guild-bot";
 declare global {
   var _path: string;
   var client: OpenAPI;
+  var adminId: string[];
   var ws: WebsocketClient;
   var redis: RedisClientType;
   var browser: Browser | null;
