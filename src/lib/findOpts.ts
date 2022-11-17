@@ -28,7 +28,7 @@ export async function findOpts(msg: IMessageEx): Promise<{ path: string; fnc: st
                     && !await isAdmin(msg.author.id, msg.member)
                 ) continue;
                 if (msg.messageType == "DIRECT"
-                    && !await isAdmin(msg.author.id, (await client.guildApi.guildMember(msg.src_guild_id!, msg.author.id)).data)
+                    && !await isAdmin(msg.author.id, undefined, msg.src_guild_id)
                 ) continue;
             }
             return {

@@ -16,8 +16,16 @@ export async function ping(msg: IMessageEx) {
 }
 
 
-export async function isAdmin(uid: string, iMember?: IMember): Promise<boolean> {
+export async function isAdmin(uid: string, iMember?: IMember, srcGuild?: string): Promise<boolean> {
     if (adminId.includes(uid)) return true;
+    if (srcGuild) {
+        iMember = await client.guildApi.guildMember(srcGuild, uid).then(d => {
+            return d.data;
+        }).catch(err => {
+            log.error(err);
+            return undefined;
+        });
+    }
     if (iMember && (iMember.roles.includes("2") || iMember.roles.includes("4")))
         return true;
     return await redis.hGet("auth", uid).then(auth => {

@@ -21,18 +21,23 @@ init().then(() => {
 });
 
 async function execute(msg: IMessageEx) {
-    global.redis.set("lastestMsgId", msg.id, { EX: 4 * 60 });
-    msg.content = msg.content.trim().replace(/^\//, "#");
-    const opt = await findOpts(msg);
-    if (opt.path != "err") {
-        log.debug(`./plugins/${opt.path}:${opt.fnc}`);
-        const plugin = await import(`./plugins/${opt.path}.ts`);
-        if (typeof plugin[opt.fnc] == "function") {
-            return (plugin[opt.fnc] as PluginFnc)(msg).catch(err => {
-                log.error(err);
-            });
-        } else log.error(`not found function ${opt.fnc}() at "${global._path}/src/plugins/${opt.path}.ts"`);
+    try {
+        global.redis.set("lastestMsgId", msg.id, { EX: 4 * 60 });
+        msg.content = msg.content.trim().replace(/^\//, "#");
+        const opt = await findOpts(msg);
+        if (opt.path != "err") {
+            log.debug(`./plugins/${opt.path}:${opt.fnc}`);
+            const plugin = await import(`./plugins/${opt.path}.ts`);
+            if (typeof plugin[opt.fnc] == "function") {
+                return (plugin[opt.fnc] as PluginFnc)(msg).catch(err => {
+                    log.error(err);
+                });
+            } else log.error(`not found function ${opt.fnc}() at "${global._path}/src/plugins/${opt.path}.ts"`);
+        }
+    } catch (err) {
+        log.error(err);
     }
+
 }
 
 type PluginFnc = (msg: IMessageEx) => Promise<any>
