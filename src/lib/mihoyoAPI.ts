@@ -218,15 +218,12 @@ export async function miGetSignRewardHome(uid: string, region: string, cookie: s
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<SignRewardHome>) => {
-        console.log(json);
         if (json.data) return json.data;
         else throw json;
-    }).catch(err => {
-        log.error(err);
     });
 }
 
-export async function miGetSignRewardSign(uid: string, region: string, cookie: string) {
+export async function miPostSignRewardSign(uid: string, region: string, cookie: string) {
 
     const headers = getHeaders(``, `{"act_id":"e202009291139501","region":"${region}","uid":"${uid}"}`, true) as any;
     headers.Cookie = cookie;
@@ -236,12 +233,9 @@ export async function miGetSignRewardSign(uid: string, region: string, cookie: s
         headers,
     }).then(res => {
         return res.json();
-    }).then((json/* : MihoyoAPI<SignRewardSign> */) => {
-        log.debug(json);
+    }).then((json: MihoyoAPI<SignRewardSign>) => {
         if (json.data) return json.data;
         else throw json;
-    }).catch(err => {
-        log.error(err);
     });
 }//SignRewardHome
 
@@ -917,4 +911,12 @@ export interface SignRewardHome {
         cnt: number,
     }[],
     resign: boolean,
+}
+
+export interface SignRewardSign {
+    code: '';
+    risk_code: 0;
+    gt: '';
+    challenge: '';
+    success: 0;
 }

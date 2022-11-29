@@ -1,8 +1,8 @@
 import fs from "fs";
+import { sleep } from "../lib/common";
 import { render } from "../lib/render";
 import { IMessageEx } from "../lib/IMessageEx";
-import { miGetDailyNote, miGetSignRewardHome, miGetSignRewardInfo } from "../lib/mihoyoAPI";
-import { sleep } from "../lib/common";
+import { miGetDailyNote, miGetSignRewardHome, miGetSignRewardInfo, miPostSignRewardSign } from "../lib/mihoyoAPI";
 
 
 export async function selectTemplate(msg: IMessageEx) {
@@ -217,23 +217,42 @@ export async function taskPushDaily() {
 
 }
 
-export async function onceSign(msg?: IMessageEx, task?: { uid: string; region: string; cookie: string; }) {
+export async function signOnce(msg?: IMessageEx, task?: { uid: string; region: string; cookie: string; }) {
 
-    var _uid: string | undefined = undefined;
-    var _region: string | undefined = undefined;
-    var _cookie: string | undefined = undefined;
+    const uid = task?.uid || await global.redis.hGet(`genshin:config:${msg?.author.id}`, "uid");
+    const region = task?.region || await global.redis.hGet(`genshin:config:${msg?.author.id}`, "region");
+    const cookie = task?.cookie || await global.redis.hGet(`genshin:config:${msg?.author.id}`, "cookie");
 
-    if (msg) {
-        _uid = task?.uid || await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
-        _region = task?.region || await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
-        _cookie = task?.cookie || await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
-    }
-    if (!(_uid && _region && _cookie)) return;
-    const data = await miGetSignRewardInfo(_uid, _region, _cookie);
+    if (!(uid && region && cookie)) return;
+    const data = await miGetSignRewardInfo(uid, region, cookie);
     if (!data) return true;
-    await miGetSignRewardHome(_uid, _region, _cookie);
-    //await miGetSignRewardSign(_uid, _region, _cookie);
+    log.debug(data);
+    /* 
+    {
+      total_sign_day: 14,
+      today: '2022-11-17',
+      is_sign: false,
+      first_bind: false,
+      is_sub: true,
+      month_first: false,
+      sign_cnt_missed: 2,
+      month_last_day: false
+    }
+    */
+    const mouthInfo = await miGetSignRewardHome(uid, region, cookie).catch(err => {
+        log.error(err);
+        msg?.sendMsgEx({ content: `获取当月奖励出错:\n${JSON.stringify(err)}` });
+    });
+    if (!mouthInfo) return;
 
+    const signInfo = await miPostSignRewardSign(uid, region, cookie).catch(err => {
+        log.error(err);
+        msg?.sendMsgEx({ content: `签到失败，原因：\n${JSON.stringify(err)}` });
+    });
+    //if (!signInfo) return;
+    log.debug(mouthInfo.month, mouthInfo.awards[data.total_sign_day]);
+
+    return msg?.sendMsgEx({ content: `今天已签到`, }); //`今天已签到\n第${isSigned}天奖励：${reward}`, });
 
 }
 
@@ -241,7 +260,7 @@ export async function changeSign(msg: IMessageEx) {
 
     const ststus = msg.content.includes("开") ? 1 : 0;
     return global.redis.hSet(`genshin:config:${msg.author.id}`, "signPush", ststus).then(() => {
-        return onceSign(msg);
+        return signOnce(msg);
     }).then(() => {
         return msg.sendMsgEx({ content: `已${ststus ? "开启" : "关闭"}签到推送服务` });
     }).catch(err => {
@@ -278,7 +297,7 @@ export async function taskPushSign() {
     log.mark(`本次检查共有${userInfos.length}个用户使用签到推送`);
 
     setInterval(() => {
-        onceSign
+        signOnce
     }, 10 * 1000);
 
     var ttl = await global.redis.ttl("lastestMsgId");
