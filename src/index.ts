@@ -1,4 +1,4 @@
-import { init } from './init';
+import { init, loadGuildTree } from './init';
 import { findOpts } from './lib/findOpts';
 import { IMessageEx } from './lib/IMessageEx';
 
@@ -18,6 +18,14 @@ init().then(() => {
         execute(msg);
     });
 
+    global.ws.on("GUILDS", (data) => {
+        log.mark(`重新加载频道树中`);
+        loadGuildTree().then(() => {
+            log.mark(`频道树加载完毕`);
+        }).catch(err => {
+            log.error(`频道树加载失败`, err);
+        });
+    });
 });
 
 async function execute(msg: IMessageEx) {
@@ -26,7 +34,7 @@ async function execute(msg: IMessageEx) {
         msg.content = msg.content.trim().replace(/^\//, "#");
         const opt = await findOpts(msg);
         if (opt.path != "err") {
-            log.debug(`./plugins/${opt.path}:${opt.fnc}`);
+            if (devEnv) log.debug(`./plugins/${opt.path}:${opt.fnc}`);
             const plugin = await import(`./plugins/${opt.path}.ts`);
             if (typeof plugin[opt.fnc] == "function") {
                 return (plugin[opt.fnc] as PluginFnc)(msg).catch(err => {

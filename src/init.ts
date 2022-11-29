@@ -2,7 +2,7 @@ import { createOpenAPI, createWebsocket } from 'qq-guild-bot';
 import { createClient } from 'redis';
 import schedule from "node-schedule";
 import fs from 'fs';
-import _log from './lib/logger';
+import _log, { setDevLog } from './lib/logger';
 import config from '../config/config.json';
 import { taskPushDaily, taskPushSign } from './plugins/dailyManager';
 import { taskPushNews } from './plugins/announcementManager';
@@ -18,6 +18,11 @@ export async function init() {
         msgSendNum: 0,
         imageRenderNum: 0,
     }
+    if (process.argv.includes("--dev")) {
+        log.mark("当前环境处于开发环境，请注意！");
+        global.devEnv = true;
+        setDevLog();
+    } else global.devEnv = false;
 
     log.info(`初始化：正在创建定时任务`);
     //体力推送
@@ -85,7 +90,7 @@ export async function init() {
     log.info(`初始化：正在连接数据库`);
     global.redis = createClient({
         socket: { host: "127.0.0.1", port: 6379, },
-        database: 0,
+        database: 1,
     });
     await global.redis.connect().then(() => {
         log.info(`初始化：redis数据库连接成功`);
@@ -100,13 +105,16 @@ export async function init() {
 
     log.info(`初始化：正在创建频道树`);
     global.saveGuildsTree = [];
+    await loadGuildTree(true);
+}
+
+export async function loadGuildTree(init = false) {
+    global.saveGuildsTree = [];
     for (const guild of (await global.client.meApi.meGuilds()).data) {
-        log.mark(`${guild.name}(${guild.id})`);
+        if (init) log.mark(`${guild.name}(${guild.id})`);
         var _guild: SaveChannel[] = [];
         for (const channel of (await global.client.channelApi.channels(guild.id)).data) {
-            if (channel.name != "") {
-                log.mark(`${guild.name}(${guild.id})-${channel.name}(${channel.id})-father:${channel.parent_id}`);
-            }
+            if (init) log.mark(`${guild.name}(${guild.id})-${channel.name}(${channel.id})-father:${channel.parent_id}`);
             _guild.push({ name: channel.name, id: channel.id });
         }
         global.saveGuildsTree.push({ name: guild.name, id: guild.id, channel: _guild });

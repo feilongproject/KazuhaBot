@@ -7,6 +7,7 @@ import { OpenAPI, WebsocketClient } from "./qq-guild-bot";
 
 declare global {
   var _path: string;
+  var devEnv: boolean;
   var client: OpenAPI;
   var adminId: string[];
   var ws: WebsocketClient;

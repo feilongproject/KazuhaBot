@@ -108,7 +108,7 @@ export async function renderURL(renderData: RenderURL) {
 
 async function browserInit() {
     if (global.browser) {
-        log.debug(`puppeteer已经启动`);
+        if (devEnv) log.debug(`puppeteer已经启动`);
         return true;
     }
     if (lock) {
