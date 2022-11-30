@@ -4,6 +4,24 @@ import fetch from "node-fetch";
 import { redisCache } from "./common";
 
 
+export async function miGetUserFullInfo(cookie: string) {
+    return await fetch("https://bbs-api.mihoyo.com/user/wapi/getUserFullInfo?gids=2", {
+        headers: {
+            Cookie: cookie,
+            Accept: 'application/json, text/plain, */*',
+            Connection: 'keep-alive',
+            Host: 'bbs-api.mihoyo.com',
+            Origin: 'https://m.bbs.mihoyo.com',
+            Referer: ' https://m.bbs.mihoyo.com/'
+        }
+    }).then(res => {
+        return res.json();
+    }).then((json: MihoyoAPI<UserFullInfo>) => {
+        if (json.retcode == 0) return json.data;
+        else throw json;
+    });
+}
+
 export async function miGetDailyNote(uid: string, region: string, cookie: string) {
     const headers = getHeaders(`role_id=${uid}&server=${region}`) as any;
     headers.Cookie = cookie;
@@ -375,6 +393,95 @@ function getDs(q = '', b = '') {
     let DS = md5(`salt=${n}&t=${t}&r=${r}&b=${b}&q=${q}`);
     return `${t},${r},${DS}`;
 };
+
+
+export interface UserFullInfo {
+    user_info: {
+        uid: string;
+        nickname: string;
+        introduce: string;
+        avatar: string;
+        gender: number;
+        certification: {
+            type: number;
+            label: string;
+        };
+        level_exps: {
+            level: number;
+            exp: number;
+            game_id: number;
+        }[];
+        achieve: {
+            like_num: string;
+            post_num: string;
+            replypost_num: string;
+            follow_cnt: string;
+            followed_cnt: string;
+            topic_cnt: string;
+            new_follower_num: string;
+            good_post_num: string;
+            follow_collection_cnt: string;
+        };
+        community_info: {
+            is_realname: boolean;
+            agree_status: boolean;
+            silent_end_time: number;
+            forbid_end_time: number;
+            info_upd_time: number;
+            privacy_invisible: {
+                post: boolean;
+                collect: boolean;
+                watermark: boolean;
+                reply: boolean;
+                post_and_instant: boolean;
+            };
+            notify_disable: {
+                reply: boolean;
+                upvote: boolean;
+                follow: boolean;
+                system: boolean;
+                chat: boolean;
+            };
+            has_initialized: boolean;
+            user_func_status: {
+                enable_history_view: boolean;
+                enable_recommend: boolean;
+                enable_mention: boolean;
+                user_center_view: number;
+            };
+            forum_silent_info: [];
+            last_login_ip: string;
+            last_login_time: number;
+            created_at: number;
+        };
+        avatar_url: string;
+        certifications: [];
+        level_exp: {
+            level: number;
+            exp: number;
+            game_id: number;
+        };
+        pendant: string;
+        is_logoff: boolean;
+        ip_region: string;
+    };
+    follow_relation: null;
+    auth_relations: [];
+    is_in_blacklist: boolean;
+    is_has_collection: boolean;
+    is_creator: boolean;
+    customer_service: {
+        is_customer_service_staff: boolean;
+        game_id: number;
+    };
+    audit_info: {
+        is_nickname_in_audit: boolean;
+        nickname: string;
+        is_introduce_in_audit: boolean;
+        introduce: string;
+        nickname_status: number;
+    };
+}
 
 export interface DailyNoteData {
     current_resin: number;
