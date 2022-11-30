@@ -167,7 +167,7 @@ export async function helpDaily(msg: IMessageEx) {
         content:
             `Cookie配置教程:(无法发送链接，解决中)` +//docs.qq.com/doc/DUWNVQVFTU3liTVlO
             `\n获取Cookie后请私聊发送给Bot进行绑定`,
-        imagePath: `/root/RemoteDir/qbot/KazuhaBot/resources/help/cookieHelp.png`,
+        imagePath: `${_path}/resources/help/cookieHelp.png`,
     });
 }
 
