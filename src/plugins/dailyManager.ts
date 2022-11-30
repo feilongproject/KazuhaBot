@@ -165,7 +165,7 @@ export async function changeDaily(msg: IMessageEx) {
 export async function helpDaily(msg: IMessageEx) {
     msg.sendMsgEx({
         content:
-            `Cookie配置教程:(无法发送链接，解决中)` +//docs.qq.com/doc/DUWNVQVFTU3liTVlO
+            `Cookie配置教程:扫码识别下方二维码获取教程` +//docs.qq.com/doc/DUWNVQVFTU3liTVlO
             `\n获取Cookie后请私聊发送给Bot进行绑定`,
         imagePath: `${_path}/resources/help/cookieHelp.png`,
     });
