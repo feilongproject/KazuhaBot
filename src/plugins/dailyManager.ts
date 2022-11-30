@@ -3,6 +3,7 @@ import { sleep } from "../lib/common";
 import { render } from "../lib/render";
 import { IMessageEx } from "../lib/IMessageEx";
 import { miGetDailyNote, miGetSignRewardHome, miGetSignRewardInfo, miPostSignRewardSign } from "../lib/mihoyoAPI";
+import { join } from "path";
 
 
 export async function selectTemplate(msg: IMessageEx) {
@@ -167,7 +168,7 @@ export async function helpDaily(msg: IMessageEx) {
         content:
             `Cookie配置教程:(无法发送链接，解决中)` +//docs.qq.com/doc/DUWNVQVFTU3liTVlO
             `\n获取Cookie后请私聊发送给Bot进行绑定`,
-        imagePath: `/root/RemoteDir/qbot/KazuhaBot/resources/help/cookieHelp.png`,
+        imagePath: join(process.cwd(),'/resources/help/cookieHelp.png') ,
     });
 }
 
