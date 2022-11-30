@@ -17,7 +17,7 @@
         },
         "cookieManager": {
             "bingCookie": {
-                "reg": "ltoken=([^;]+;)|ltuid=([^;]+;)|cookie_token=([^;]+;)|login_ticket=([^;]+;)",
+                "reg": "(ltoken|ltoken_v2)=([^;]+;)|ltuid=([^;]+;)|(cookie_token|cookie_token_v2)=([^;]+;)|login_ticket=([^;]+;)",
                 "fnc": "bingCookie",
                 "type": ["DIRECT"],
                 "permission": "anyone",

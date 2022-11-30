@@ -2,30 +2,26 @@ import fetch from "node-fetch"
 import { IMessageEx } from "../lib/IMessageEx";
 
 export async function bingCookie(msg: IMessageEx) {
+    var ck = msg.content.replace(/#|'|"/g, '');
+    let _cookie: { [key: string]: string } = {};
+    for (const c of ck.split(";")) {
+        const _head = c.trim().split('=')[0];
+        _cookie[_head] = c.trim().slice(_head.length + 1);
+    }
+    if (!_cookie.cookie_token && !_cookie.cookie_token_v2) return msg.sendMsgEx({ content: '发送cookie不完整\n请退出米游社【重新登录】，刷新完整cookie' });
 
-    var param = msg.content.match(/ltoken=([^;]+;)|ltuid=(\w{0,9})|cookie_token=([^;]+;)|login_ticket=([^;]+;)/g);
-    //log.debug(param);
-    var cookie = ``;
-    param?.forEach(p => {
-        if (!p.endsWith(";")) p += `;`;
-        if (p.startsWith(`ltuid=`)) {
-            const accId = /[0-9]+/.exec(p)![0];
-            cookie += `account_id=${accId};`;
-        }
-        cookie += p;
-    });
-
-    //log.debug(cookie);
+    var cookie = `ltoken=${_cookie.ltoken};ltuid=${_cookie.ltuid || _cookie.login_uid};cookie_token=${_cookie.cookie_token || _cookie.cookie_token_v2}; account_id=${_cookie.ltuid || _cookie.login_uid};`;
+    var flagV2 = false;
+    if (_cookie.cookie_token_v2 && (_cookie.account_mid_v2 || _cookie.ltmid_v2)) {
+        flagV2 = true;
+        cookie = `account_mid_v2=${_cookie.account_mid_v2};cookie_token_v2=${_cookie.cookie_token_v2};ltoken_v2=${_cookie.ltoken_v2};ltmid_v2=${_cookie.ltmid_v2};`;
+    }
 
     fetch(`https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn`, {
-        method: "GET",
-        headers: { Cookie: cookie, }
-    }
-    ).then(res => {
+        headers: { Cookie: cookie }
+    }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<CookieData>) => {
-        //log.debug(json);
-
         if (json.retcode == 0) {
 
             if (json.data && json.data.list.length > 0) {
