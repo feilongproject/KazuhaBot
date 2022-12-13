@@ -10,7 +10,7 @@
         "pm2:stop":"pm2 stop pm2.yaml",
         "pm2:delete":"pm2 delete pm2.yaml",
         "pm2:save":"pm2 save --force",
-        "pm2:log":"pm2 logs --lines 400 pm2.yaml"
+        "pm2:log":"pm2 logs --lines 400 kazuha_bot"
     },
     "keywords": [],
     "author": "feilongproject",
