@@ -17,14 +17,16 @@ var shoting: any[] = [];
 
 export async function render(renderData: Render) {
 
+    let renderPath= global._path.replace(/\\/g,'/')
+
     //log.debug(renderData);
-    if (renderData.render.template) renderData.render.resFile = `${global._path}/resources/${renderData.app}/${renderData.type}/${renderData.render.template}.html`;
-    else renderData.render.resFile = `${global._path}/resources/${renderData.app}/${renderData.type}/index.html`;
+    if (renderData.render.template) renderData.render.resFile = `${renderPath}/resources/${renderData.app}/${renderData.type}/${renderData.render.template}.html`;
+    else renderData.render.resFile = `${renderPath}/resources/${renderData.app}/${renderData.type}/index.html`;
 
     if (!renderData.render.saveFile)
-        renderData.render.saveFile = `${global._path}/generate/html/${renderData.app}/${renderData.type}/${renderData.render.saveId}.html`;
+        renderData.render.saveFile = `${renderPath}/generate/html/${renderData.app}/${renderData.type}/${renderData.render.saveId}.html`;
     if (!renderData.data.resPath)
-        renderData.data.resPath = `${global._path}/resources`;
+        renderData.data.resPath = `${renderPath}/resources`;
     //renderData.data.resPath = `/resources`;//测试用
 
     return await doRender(renderData).catch(err => {

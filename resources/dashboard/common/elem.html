@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <link rel="shortcut icon" href="#" />
+    <link rel="preload" href="{{resPath}}/font/HYWH-65W.ttf" as="font" crossorigin>
+    <link rel="preload" href="{{resPath}}/font/HYWH-85W.ttf" as="font" crossorigin>
+    <link rel="preload" href="{{resPath}}/font/NZBZ.ttf" as="font" crossorigin>
+    <link rel="preload" href="{{resPath}}/font/tttgbnumber.ttf" as="font" crossorigin>
+    <link rel="stylesheet" type="text/css" href="{{resPath}}/_common/common.css" />
+    {{block 'css'}}
+    {{/block}}
+</head>
+
+<body class="elem-{{element||elem||`hydro`}} {{displayMode || mode || `default`}}-mode {{bodyClass}}"
+    style="transform:scale('{{sys.scale}}')">
+    <div class="container elem-bg" id="container">
+        {{block 'main'}}{{/block}}
+        <div class="copyright">{{@sys.copyright}}</div>
+    </div>
+</body>
+
+</html>
