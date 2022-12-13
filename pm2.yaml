@@ -1,0 +1,11 @@
+apps:
+  - cwd: ./ # 运行目录
+    min_uptime: 10000 # pm2认为进程在线的最小时长
+    max_restarts: 3 # 最大不稳定重启次数（不稳定指的是小于1s或者小于的min_uptime重启）
+    name: kazuha_bot # pm2项目名称
+    script: ./pm2-run.js # 启动文件入口 (不能为pm2.js)
+    error_file: ./pm2/error.log # pm2输出错误信息日志
+    out_file: ./pm2/out.log # pm2输出输出日志
+    log_date_format: 'YYYY-MM-DD HH:mm Z' # 日志的日期格式 年-月-日 时:分:秒 时区
+    max_memory_restart: 512M # 超过该内存就自动重启
+    cron_restart: '0 8 * * *' # 定时重启 设置为每天8点 需要注意时区
