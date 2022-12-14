@@ -4,7 +4,6 @@ import schedule from "node-schedule";
 import fs from 'fs';
 import _log, { setDevLog } from './lib/logger';
 import config from '../config/config.json';
-//import { taskPushDaily, taskPushSign } from './plugins/dailyManager';
 //import { taskPushNews } from './plugins/announcementManager';
 
 export async function init() {
@@ -26,7 +25,7 @@ export async function init() {
 
     log.info(`初始化：正在创建定时任务`);
     //体力推送
-    //schedule.scheduleJob("0 0/10 * * * ? ", () => taskPushDaily());
+    schedule.scheduleJob("0 0/10 * * * ? ", (await import('./plugins/dailyManager')).taskPushDaily);
     ////自动签到
     //schedule.scheduleJob("0 0 12 * * ?", () => taskPushSign());
     ////官方公告推送
