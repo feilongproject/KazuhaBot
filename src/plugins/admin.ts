@@ -1,7 +1,7 @@
 import { IMember } from "qq-guild-bot";
-import { IMessageEx } from "../lib/IMessageEx";
+import { IMessageDIRECT } from "../lib/IMessageEx";
 
-export async function status(msg: IMessageEx) {
+export async function status(msg: IMessageDIRECT) {
     return msg.sendMsgEx({
         content: `------状态------` +
             `\n运行时间：${timeConver(new Date().getTime() - global.botStatus.startTime.getTime())}` +
@@ -11,7 +11,7 @@ export async function status(msg: IMessageEx) {
     });
 }
 
-export async function ping(msg: IMessageEx) {
+export async function ping(msg: IMessageDIRECT) {
     msg.sendMsgEx({ content: await global.redis.ping() });
 }
 

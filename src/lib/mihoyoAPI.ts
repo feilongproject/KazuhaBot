@@ -4,6 +4,18 @@ import fetch from "node-fetch";
 import { redisCache } from "./common";
 
 
+export async function miGetUserGameRolesByCookie(cookie: string): Promise<CookieData | null> {
+    return fetch(`https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn`, {
+        headers: { Cookie: cookie }
+    }).then(res => {
+        return res.json();
+    }).then((json: MihoyoAPI<CookieData>) => {
+        //log.debug(json)
+        if (json.retcode == 0) return json.data;
+        else throw json;
+    });
+}
+
 export async function miGetUserFullInfo(cookie: string) {
     return await fetch("https://bbs-api.mihoyo.com/user/wapi/getUserFullInfo?gids=2", {
         headers: {
@@ -17,6 +29,7 @@ export async function miGetUserFullInfo(cookie: string) {
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<UserFullInfo>) => {
+        //log.debug(json)
         if (json.retcode == 0) return json.data;
         else throw json;
     });
@@ -30,7 +43,7 @@ export async function miGetDailyNote(uid: string, region: string, cookie: string
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<DailyNoteData>) => {
-        //log.debug(json.message);
+        //log.debug(json);
         if (json.retcode == 0) return json.data;
         else throw json;
     });
@@ -39,7 +52,6 @@ export async function miGetDailyNote(uid: string, region: string, cookie: string
 export async function miGetRecordIndex(uid: string, region: string, cookie: string): Promise<RecordIndexData | null> {
     const cacheIndex = await redisCache("r", `cache:talent:${uid}`, "index");
     if (cacheIndex) return JSON.parse(cacheIndex);
-
     const headers = getHeaders(`role_id=${uid}&server=${region}`) as any;
     headers.Cookie = cookie;
     return fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/index?role_id=${uid}&server=${region}`, {
@@ -49,14 +61,11 @@ export async function miGetRecordIndex(uid: string, region: string, cookie: stri
         return res.json();
         //return res.json();
     }).then((json: MihoyoAPI<RecordIndexData>) => {
+        //log.debug(json);
         if (json.retcode == 0) {
             redisCache("w", `cache:talent:${uid}`, "index", JSON.stringify(json.data), 3600 * 12);
             return json.data;
-        }
-        else throw json;
-    }).catch(err => {
-        log.error(err);
-        return null;
+        } else throw json;
     });
 }
 
@@ -86,18 +95,14 @@ export async function miGetAvatarDetail(uid: string, server: string, cookie: str
 export async function miGetAvatarSkills(uid: string, server: string, cookie: string, roleId: number) {
     const headers = getHeaders(`avatar_id=${roleId}`) as any;
     headers.Cookie = cookie;
-    return await fetch(`https://api-takumi.mihoyo.com/event/e20200928calculate/v1/avatarSkill/list?` +
-        `avatar_id=${roleId}`, {
+    return await fetch(`https://api-takumi.mihoyo.com/event/e20200928calculate/v1/avatarSkill/list?avatar_id=${roleId}`, {
         method: "GET",
         headers,
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<AvatarSkills>) => {
         //log.debug(json);
-        if (json.data) {
-            //redisCache("w", `cache:talent:${uid}`, `avatar:${avatar.id}`, JSON.stringify(json.data), 3600 * 12);
-            return json.data;
-        }
+        if (json.data) return json.data;
         else throw json;
     }).catch(err => {
         log.error(err);
@@ -221,8 +226,6 @@ export async function miGetSignRewardInfo(uid: string, region: string, cookie: s
     }).then((json: MihoyoAPI<SignRewardInfo>) => {
         if (json.data) return json.data;
         else throw json;
-    }).catch(err => {
-        log.error(err);
     });
 }
 
@@ -394,6 +397,19 @@ function getDs(q = '', b = '') {
     return `${t},${r},${DS}`;
 };
 
+
+interface CookieData {
+    list: {
+        game_biz: string;
+        region: string;
+        game_uid: string;
+        nickname: string;
+        level: number;
+        is_chosen: boolean;
+        region_name: string;
+        is_official: number;
+    }[];
+}
 
 export interface UserFullInfo {
     user_info: {

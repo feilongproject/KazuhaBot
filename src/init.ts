@@ -4,14 +4,14 @@ import schedule from "node-schedule";
 import fs from 'fs';
 import _log, { setDevLog } from './lib/logger';
 import config from '../config/config.json';
-import { taskPushDaily, taskPushSign } from './plugins/dailyManager';
-import { taskPushNews } from './plugins/announcementManager';
+//import { taskPushDaily, taskPushSign } from './plugins/dailyManager';
+//import { taskPushNews } from './plugins/announcementManager';
 
 export async function init() {
     console.log(`机器人准备运行，正在初始化`);
 
     global.adminId = ["7681074728704576201", "9540810258706627170"];
-    global._path = process.cwd();
+    global._path = process.cwd().replace(/\\/g, '\\\\');
     global.log = _log;
     global.botStatus = {
         startTime: new Date(),
@@ -26,11 +26,11 @@ export async function init() {
 
     log.info(`初始化：正在创建定时任务`);
     //体力推送
-    schedule.scheduleJob("0 0/10 * * * ? ", () => taskPushDaily());
+    //schedule.scheduleJob("0 0/10 * * * ? ", () => taskPushDaily());
     ////自动签到
-    schedule.scheduleJob("0 0 12 * * ?", () => taskPushSign());
+    //schedule.scheduleJob("0 0 12 * * ?", () => taskPushSign());
     ////官方公告推送
-    schedule.scheduleJob("0 0/30 * * * ? ", () => taskPushNews());
+    //schedule.scheduleJob("0 0/30 * * * ? ", () => taskPushNews());
     ////原石统计推送
     //schedule.scheduleJob("0 0 10 L * ? ", () => YunzaiApps.dailyNote.ledgerTask());
 
@@ -101,7 +101,7 @@ export async function init() {
 
     log.info(`初始化：正在创建client与ws`);
     global.client = createOpenAPI(config.initConfig);
-    global.ws = createWebsocket(config.initConfig as any);
+    global.ws = createWebsocket(config.initConfig);
 
     log.info(`初始化：正在创建频道树`);
     global.saveGuildsTree = [];
@@ -113,7 +113,11 @@ export async function loadGuildTree(init = false) {
     for (const guild of (await global.client.meApi.meGuilds()).data) {
         if (init) log.mark(`${guild.name}(${guild.id})`);
         var _guild: SaveChannel[] = [];
-        for (const channel of (await global.client.channelApi.channels(guild.id)).data) {
+        const channels = await global.client.channelApi.channels(guild.id).catch(err => {
+            log.error(err);
+            throw err;
+        });
+        for (const channel of channels.data) {
             if (init) log.mark(`${guild.name}(${guild.id})-${channel.name}(${channel.id})-father:${channel.parent_id}`);
             _guild.push({ name: channel.name, id: channel.id });
         }

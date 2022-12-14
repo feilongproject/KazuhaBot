@@ -1,60 +1,32 @@
 import fs from "fs";
 import { sleep } from "../lib/common";
 import { render } from "../lib/render";
-import { IMessageEx } from "../lib/IMessageEx";
+import { IMessageDIRECT } from "../lib/IMessageEx";
 import { miGetDailyNote, miGetSignRewardHome, miGetSignRewardInfo, miPostSignRewardSign } from "../lib/mihoyoAPI";
 
 
-export async function selectTemplate(msg: IMessageEx) {
-
-    var template: null | string = null;
-    var templates = fs.readdirSync(`./resources/genshin/dailyNote/Template/`);
-    //log.debug(templates);
-    if (msg.content.includes("列表")) {
-        msg.sendMsgEx({ content: `当前使用的模板为：${template == null ? `default` : template}\n支持的模板有：\n${templates.join("\n")}` });
-    } else {
-        templates.forEach(t => {
-            if (msg.content.includes(t)) {
-                template = t;
-                return;
-            }
-        });
-        if (template) {
-            await global.redis.hSet(`genshin:config:${msg.author.id}`, "template", template).then(() => {
-                msg.sendMsgEx({ content: `已选择体力模板「${template}」` });
-            });
-        } else {
-            msg.sendMsgEx({ content: `未找到指定模板，可输入 【#体力模板列表】 查询当前支持的模板` });
-        }
-    }
-}
-
-export async function onceDaily(msg: IMessageEx) {
+export async function onceDaily(msg: IMessageDIRECT) {
     const miUid = await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
     const miRegion = await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
     const cookie = await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
     var template = await global.redis.hGet(`genshin:config:${msg.author.id}`, "template");
-    //log.debug(miRegion, miUid);
-    //log.debug(miRegion, miUid, cookie);
-    if (!miRegion || !miUid || !cookie) {
-        msg.sendMsgEx({ content: `未找到cookie，请绑定cookie!` });
-        return;
-    }
+
+    if (!miRegion || !miUid || !cookie) return msg.sendMsgEx({ content: `未找到cookie，请绑定cookie!` });
+
     const data = await miGetDailyNote(miUid, miRegion, cookie).catch(err => {
         msg.sendMsgEx({ content: `获取信息出错，错误详情：\n${err}` });
         return null;
     });
     if (!data) return;
 
-    //树脂
     //log.debug(`将于${converTime(data.resin_recovery_time)}后回复`, data.resin_recovery_time);
-    var resinTime = { max: data.max_resin, now: data.current_resin, content: "", }
+    const resinTime = { max: data.max_resin, now: data.current_resin, content: "", }
     if (data.resin_recovery_time > 0) {
         resinTime.content = `将于${converTime(data.resin_recovery_time)}后回复`;
     } else resinTime.content = "树脂已完全回复";
 
     //洞天宝钱
-    var homeCoin = { max: data.max_home_coin, now: data.current_home_coin, content: "" };
+    const homeCoin = { max: data.max_home_coin, now: data.current_home_coin, content: "" };
     //log.debug(data.home_coin_recovery_time);
     if (data.home_coin_recovery_time > 0) {
         homeCoin.content = `${converTime(data.home_coin_recovery_time)}后回复`;
@@ -62,13 +34,13 @@ export async function onceDaily(msg: IMessageEx) {
 
     //委托
     //log.debug(data.is_extra_task_reward_received);
-    var task = { finish: data.finished_task_num, total: data.total_task_num, received: data.is_extra_task_reward_received };
+    const task = { finish: data.finished_task_num, total: data.total_task_num, received: data.is_extra_task_reward_received };
 
     //减半
-    var cutHalf = { total: data.resin_discount_num_limit, now: data.remain_resin_discount_num };
+    const cutHalf = { total: data.resin_discount_num_limit, now: data.remain_resin_discount_num };
 
     //参量质变仪
-    var transformer = { has: data.transformer.obtained, content: "", reached: data.transformer.recovery_time.reached };
+    const transformer = { has: data.transformer.obtained, content: "", reached: data.transformer.recovery_time.reached };
     if (!transformer.reached) {
         if (data.transformer.recovery_time.Day > 0)
             transformer.content += `${data.transformer.recovery_time.Day}天`;
@@ -79,8 +51,8 @@ export async function onceDaily(msg: IMessageEx) {
     }
 
     //探索
-    var expeditions: { icon: string, content: string, remain: number, schedule: number }[] = [];
-    var expedition = { finish: 0, total: 0, maxTime: 0, content: `派遣已完成` };
+    const expeditions: { icon: string, content: string, remain: number, schedule: number }[] = [];
+    const expedition = { finish: 0, total: 0, maxTime: 0, content: `派遣已完成` };
     for (const value of data.expeditions) {
         //log.debug(value.remained_time);
         expedition.total++;
@@ -105,19 +77,14 @@ export async function onceDaily(msg: IMessageEx) {
     }
     for (var i = 0; i < 5 - data.expeditions.length; i++) expeditions.push({ icon: "", content: "", remain: 0, schedule: 0 });
 
-    //log.debug(expeditions);
-
-    //搜索模板
-    var templates = fs.readdirSync(`./resources/genshin/dailyNote/Template/`);
+    var templates = fs.readdirSync(`./resources/dailyNote/template/`);
     if (!template) template = "default";
     else if (templates.indexOf(template) == -1) template = "default";
-    //log.debug(template, templates);
 
     var pic = await render({
-        app: "genshin",
-        type: "dailyNote",
-        imgType: "jpeg",
-        render: { saveId: msg.author.id, template: `Template/${template}/${template}` },
+        app: "dailyNote",
+        saveId: msg.author.id,
+        templateName: `template/${template}/index`,
         data: {
             template,
             uid: miUid,
@@ -128,7 +95,6 @@ export async function onceDaily(msg: IMessageEx) {
             transformer,
             expeditions,
             expedition,
-            imgs: `01.png`,
             day: new Date().toLocaleTimeString(),
         }
     }).catch(err => {
@@ -142,7 +108,32 @@ export async function onceDaily(msg: IMessageEx) {
 
 }
 
-export async function changeDaily(msg: IMessageEx) {
+export async function selectTemplate(msg: IMessageDIRECT) {
+
+    var template: null | string = null;
+    var templates = fs.readdirSync(`./resources/dailyNote/template/`);
+    if (/列表/.test(msg.content)) {
+        return msg.sendMsgEx({ content: `当前使用的模板为：${template || `default`}\n支持的模板有：\n${templates.join("\n")}` });
+    } else {
+        for (const t of templates) if (msg.content.includes(t)) template = t;
+
+        if (template) return await global.redis.hSet(`genshin:config:${msg.author.id}`, "template", template).then(() => {
+            return msg.sendMsgEx({ content: `已选择体力模板「${template}」` });
+        });
+        else return msg.sendMsgEx({ content: `未找到指定模板，可输入 【#体力模板列表】 查询当前支持的模板\n注意: 请区分大小写` });
+
+    }
+}
+
+export async function helpDaily(msg: IMessageDIRECT) {
+    return msg.sendMsgEx({
+        content: `Cookie配置教程(扫码识别下方二维码获取教程)` +
+            `\n获取Cookie后请私聊发送给Bot进行绑定`,
+        imagePath: `${_path}/resources/help/cookieHelp.png`,
+    });
+}
+
+export async function changeDaily(msg: IMessageDIRECT) {
     if (msg.content.includes("开")) {
         return global.redis.hSet(`genshin:config:${msg.author.id}`, "dailyPush", 1).then(() => {
             return taskPushDaily();
@@ -160,15 +151,6 @@ export async function changeDaily(msg: IMessageEx) {
             log.error(err);
         });
     }
-}
-
-export async function helpDaily(msg: IMessageEx) {
-    msg.sendMsgEx({
-        content:
-            `Cookie配置教程(扫码识别下方二维码获取教程)` +
-            `\n获取Cookie后请私聊发送给Bot进行绑定`,
-        imagePath: `${_path}/resources/help/cookieHelp.png`,
-    });
 }
 
 export async function taskPushDaily() {
@@ -201,12 +183,12 @@ export async function taskPushDaily() {
             //log.debug(`guildId:${guildId}`);
             if (!guildId) continue;
 
-            await onceDaily(new IMessageEx({
+            await onceDaily(new IMessageDIRECT({
                 author: { id: userId },
                 id: msgId,
                 guild_id: guildId,
                 content: "#树脂",
-            } as any, "DIRECT")).then(() => {
+            } as any)).then(() => {
                 return global.redis.set(`genshin:dailyPushed:${userId}`, `${new Date().toString()}`, { EX: 3600 * 12 });
             });
 
@@ -217,7 +199,7 @@ export async function taskPushDaily() {
 
 }
 
-export async function signOnce(msg?: IMessageEx, task?: { uid: string; region: string; cookie: string; }) {
+export async function signOnce(msg?: IMessageDIRECT, task?: { uid: string; region: string; cookie: string; }) {
 
     const uid = task?.uid || await global.redis.hGet(`genshin:config:${msg?.author.id}`, "uid");
     const region = task?.region || await global.redis.hGet(`genshin:config:${msg?.author.id}`, "region");
@@ -256,7 +238,7 @@ export async function signOnce(msg?: IMessageEx, task?: { uid: string; region: s
 
 }
 
-export async function changeSign(msg: IMessageEx) {
+export async function changeSign(msg: IMessageDIRECT) {
 
     const ststus = msg.content.includes("开") ? 1 : 0;
     return global.redis.hSet(`genshin:config:${msg.author.id}`, "signPush", ststus).then(() => {

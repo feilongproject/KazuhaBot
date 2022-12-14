@@ -1,5 +1,5 @@
 import { render } from "../lib/render";
-import { IMessageEx } from "../lib/IMessageEx";
+import { IMessageGUILD } from "../lib/IMessageEx";
 import role from "../../data/role.json";
 import weapon from "../../data/weapon.json";
 import gachaPool from "../../data/gachaPool.json";
@@ -8,12 +8,6 @@ import gachaPool from "../../data/gachaPool.json";
 const chance5 = 60;
 //四星基础概率
 const chance4 = 510;
-//角色不歪的概率（0-100）
-const wai = 45;
-//五星武器基础概率
-const chanceW5 = 70;
-//四星武器基础概率
-const chanceW4 = 600;
 
 //五星角色
 let role5 = ["刻晴", "莫娜", "七七", "迪卢克", "琴", "提纳里"];
@@ -28,7 +22,7 @@ let weapon4 = ["弓藏", "祭礼弓", "绝弦", "西风猎弓", "昭心", "祭�
 let weapon3 = ["弹弓", "神射手之誓", "鸦羽弓", "翡玉法球", "讨龙英杰谭", "魔导绪论", "黑缨枪", "以理服人", "沐浴龙血的剑", "铁影阔剑", "飞天御剑", "黎明神剑", "冷刃",];
 
 
-export async function gacha(msg: IMessageEx) {
+export async function gacha(msg: IMessageGUILD) {
 
     var userId = msg.author.id;
     var type: "weapon" | "role" = msg.content.includes("武器") ? "weapon" : "role";
@@ -41,7 +35,6 @@ export async function gacha(msg: IMessageEx) {
     var weaponBing = await global.redis.hGet(`genshin:config:${msg.author.id}`, "weaponBing") || undefined;
 
     global.redis.get(`genshin:gacha:${userId}`).then((_gachaData) => {
-        //var gachaData: GachaData;
         if (_gachaData) {
             return JSON.parse(_gachaData);
         } else {
@@ -54,10 +47,7 @@ export async function gacha(msg: IMessageEx) {
             };
         }
     }).then((gachaData: GachaData) => {
-
         var _queue: RandQueue[] = [];
-
-        //循环十次
         for (let i = 1; i <= 10; i++) {
             gachaData.total++;
             let tmpChance5 = chance5;
@@ -69,7 +59,6 @@ export async function gacha(msg: IMessageEx) {
             } else if (gachaData.N.star5 >= 60) { //60抽后逐渐增加概率
                 tmpChance5 = chance5 + (gachaData.N.star5 - 50) * 40;
             }
-
 
             if (getRandomInt(10000) <= tmpChance5) {//抽中五星
                 gachaData.N.star5 = 0;
@@ -101,12 +90,8 @@ export async function gacha(msg: IMessageEx) {
         if (type == "role") poolName = `角色池：${upPool?.up5[0]}`;
         else poolName = `武器池：${upPool?.weapon5[0]}`;
         render({
-            app: "genshin",
-            type: "gacha",
-            imgType: "jpeg",
-            render: {
-                saveId: userId,
-            },
+            app: "gacha",
+            saveId: userId,
             data: {
                 saveId: userId,
                 name: msg.author.username,
@@ -127,7 +112,7 @@ export async function gacha(msg: IMessageEx) {
     });
 }
 
-export async function gachaWeaponBing(msg: IMessageEx) {
+export async function gachaWeaponBing(msg: IMessageGUILD) {
 
     const weapon = getNowPool(3).weapon5;
     var configBing = await global.redis.hGet(`genshin:config:${msg.author.id}`, "weaponBing");
@@ -180,7 +165,6 @@ function getEnd() {
     return { dayEnd, weekEnd, keyEnd };
 }
 
-//返回随机整数
 function getRandomInt(max = 10000) {
     return Math.floor(Math.random() * max);
 }
@@ -228,22 +212,14 @@ function getNowPool(upType: number) {
 
 function randStar(star: 5 | 4 | 3, _type: string, upType: 1 | 2 | 3, weaponBing?: string): RandQueue {
 
-    var upPool = getNowPool(upType);
-
     var _pool: string[] = [];
-    var searchPool = [...role, ...weapon];
-
-    var type: "role" | "weapon";
-    if (Math.random() > 0.5 || _type == "weapon") {
-        type = "weapon";
-    } else {
-        type = "role";
-    }
+    const upPool = getNowPool(upType);
+    const searchPool = [...role, ...weapon];
+    var type = (Math.random() > 0.5 || _type == "weapon") ? "weapon" : "role";
 
     switch (star) {
         case 5:
             if (upPool?.weapon5) _pool.push(...upPool.weapon5);
-
             if (type == "role") {
                 _pool = role5;
                 if (upPool?.up5) _pool.push(...upPool.up5);
@@ -255,7 +231,6 @@ function randStar(star: 5 | 4 | 3, _type: string, upType: 1 | 2 | 3, weaponBing?
             break;
         case 4:
             if (upPool?.weapon4) _pool.push(...upPool.weapon4);
-
             if (type == "role") {
                 _pool = role4;
                 if (upPool?.up4) _pool.push(...upPool.up4);
@@ -273,21 +248,17 @@ function randStar(star: 5 | 4 | 3, _type: string, upType: 1 | 2 | 3, weaponBing?
 
     if (weaponBing) _pool = [upPool.weapon5[parseInt(weaponBing)]];
     var id = getRandomInt(_pool.length);
-    //log.debug(id, _pool[id], type);
 
-    for (let iv = 0; iv < searchPool.length; iv++) {
-        //log.debug(searchPool[iv], _pool[id]);
-        if (searchPool[iv].name[0] == _pool[id]) {
-            return {
-                name: searchPool[iv].name[0],
-                star: star,
-                id: searchPool[iv].id,
-                type,
-                element: searchPool[iv].element,
-            }
+    for (let iv = 0; iv < searchPool.length; iv++)
+        if (searchPool[iv].name[0] == _pool[id]) return {
+            name: searchPool[iv].name[0],
+            star: star,
+            id: searchPool[iv].id,
+            type,
+            element: searchPool[iv].element,
         }
-    }
-    throw new Error("not found role or weapon in searchPool");
+
+    throw new Error(`not found role or weapon in searchPool |info: ${_pool[id]} ${star} ${_type} ${upType} ${weaponBing}`);
 }
 
 interface GachaData {
@@ -310,9 +281,9 @@ interface GachaData {
         star4: number;
         star5: number;
     };
-};
+}
 
-export interface RandQueue {
+interface RandQueue {
     name: string;
     star: 5 | 4 | 3;
     id: number;
