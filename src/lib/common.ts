@@ -1,4 +1,6 @@
 import fs from "fs";
+import fetch from "node-fetch";
+import { lastestMsgIdAddr } from "../../config/config.json";
 
 export function writeFileSyncEx(filePath: string, data: string | Buffer, options?: fs.WriteFileOptions) {
 
@@ -80,4 +82,17 @@ export const Format = {
         return Format.pct(num * 100, fix);
     }
 
+}
+
+export async function getLastestMsgId() {
+    const msgId = await redis.get("lastestMsgId");
+    if (msgId) return msgId;
+    return fetch(lastestMsgIdAddr).then(res => {
+        return res.buffer();
+    }).then(buff => {
+        return buff.toString();
+    }).catch(err => {
+        log.error(err);
+        return null;
+    })
 }

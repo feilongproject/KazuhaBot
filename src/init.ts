@@ -25,9 +25,9 @@ export async function init() {
 
     log.info(`初始化：正在创建定时任务`);
     //体力推送
-    schedule.scheduleJob("0 0/10 * * * ? ", (await import('./plugins/dailyManager')).taskPushDaily);
-    ////自动签到
-    //schedule.scheduleJob("0 0 12 * * ?", () => taskPushSign());
+    schedule.scheduleJob("0 0/10 * * * *", (await import('./plugins/dailyManager')).taskPushDaily);
+    //自动签到
+    schedule.scheduleJob("0 0/30 * * * *", (await import('./plugins/dailyManager')).taskPushSign);
     ////官方公告推送
     //schedule.scheduleJob("0 0/30 * * * ? ", () => taskPushNews());
     ////原石统计推送

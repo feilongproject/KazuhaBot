@@ -61,27 +61,7 @@ export class IMessageCommon implements IntentMessage.MessageCommon {
 
     async sendMsgEx(option: Partial<SendMsgOption>) {
         global.botStatus.msgSendNum++;
-        const { ref, content, initiative } = option;
-        option.msgId = option.msgId || this.id;
-        option.guildId = option.guildId || this.guild_id;
-        option.channelId = option.channelId || this.channel_id;
-        option.sendType = option.sendType || this.messageType;
-        if (option.imagePath) {
-            return sendImage(option, this);
-        } else {
-            if (option.sendType == "GUILD") {
-                return global.client.messageApi.postMessage(option.channelId, {
-                    content: content,
-                    msg_id: initiative ? undefined : this.id,
-                    message_reference: ref ? { message_id: this.id, } : undefined
-                });
-            } else {
-                return global.client.directMessageApi.postDirectMessage(option.guildId!, {
-                    msg_id: initiative ? undefined : this.id,
-                    content: content,
-                });
-            }
-        }
+        return sendMessage(option, this);
     }
 
     async sendMsgExRef(option: Partial<SendMsgOption>) {
@@ -113,16 +93,31 @@ export class IMessageCommon implements IntentMessage.MessageCommon {
     }
 }
 
-export async function sendImage(option: Partial<SendMsgOption>, msg?: IMessageCommon): Promise<IMessage> {
-    const { sendType, initiative, content, imagePath, msgId, guildId, channelId } = option;
-    var pushUrl =
-        (sendType == "DIRECT" || msg?.messageType == "DIRECT") ?
-            `https://api.sgroup.qq.com/dms/${guildId}/messages` :
-            `https://api.sgroup.qq.com/channels/${channelId}/messages`;
+export async function sendMessage(option: Partial<SendMsgOption>, msg?: IMessageCommon): Promise<IMessage> {
+    const sendType = option.sendType || msg?.messageType;
+    const msgId = option.msgId || msg?.id;
+    const guildId = option.guildId || msg?.guild_id;
+    const channelId = option.channelId || msg?.channel_id;
+    const { ref, imagePath, content } = option;
+
+    if (!imagePath) {
+        const sendBody = { msg_id: msgId, content: content, message_reference: (ref && msgId) ? { message_id: msgId } : undefined };
+        if (sendType == "GUILD") {
+            if (!channelId) throw "not have channelId";
+            return client.messageApi.postMessage(channelId, sendBody).then(res => { return res.data; });
+        } else {
+            if (!guildId) throw "not have guildId";
+            return client.directMessageApi.postDirectMessage(guildId, sendBody).then(res => { return res.data; });
+        }
+    }
+
+    const pushUrl = (sendType == "DIRECT") ?
+        `https://api.sgroup.qq.com/dms/${guildId}/messages` :
+        `https://api.sgroup.qq.com/channels/${channelId}/messages`;
     const formdata = new FormData();
-    if (!initiative && msgId) formdata.append("msg_id", msgId);
+    if (msgId) formdata.append("msg_id", msgId);
     if (content) formdata.append("content", content);
-    if (!imagePath) throw "not found imagePath!";
+    if (!imagePath) throw "not have imagePath";
     formdata.append("file_image", fs.createReadStream(imagePath));
     return fetch(pushUrl, {
         method: "POST",
@@ -163,7 +158,6 @@ interface SendMsgOption {
     ref?: boolean;
     imagePath?: string;
     content?: string;
-    initiative?: boolean;
     sendType: "DIRECT" | "GUILD";
     msgId?: string;
     guildId?: string;

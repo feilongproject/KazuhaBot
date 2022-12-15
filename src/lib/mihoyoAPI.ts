@@ -350,21 +350,19 @@ export async function miPostSignRewardSign(uid: string, region: string, cookie: 
 } */
 
 export function getHeaders(query = '', body = '', sign = false) {
-    function getdevice() {
-        return `Yz-${md5(query).substring(0, 5)}`;
-    }
+    const device = `KazuhaBot-${md5(query).substring(0, 5)}`;
     if (sign) return {
-        'x-rpc-app_version': '2.36.1',
+        'x-rpc-app_version': '2.37.1',
         'x-rpc-client_type': 5,
         'x-rpc-device_id': getGuid(),
-        'User-Agent': `Mozilla/5.0 (Linux; Android 12; ${getdevice()}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.36.1`,
+        'User-Agent': `Mozilla/5.0 (Linux; Android 12; ${device}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.37.1`,
         'X-Requested-With': 'com.mihoyo.hyperion',
         'x-rpc-platform': 'android',
-        'x-rpc-device_model': getdevice(),
-        'x-rpc-device_name': getdevice(),
+        'x-rpc-device_model': device,
+        'x-rpc-device_name': device,
         'x-rpc-channel': 'miyousheluodi',
         'x-rpc-sys_version': '6.0.1',
-        Referer: "https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html?bbs_auth_required=true&act_id=e202009291139501&utm_source=bbs&utm_medium=mys&utm_campaign=icon",
+        Referer: 'https://webstatic.mihoyo.com/bbs/event/signin-ys/index.html?bbs_auth_required=true&act_id=e202009291139501&utm_source=bbs&utm_medium=mys&utm_campaign=icon',
         DS: getDsSign(),
     }
     else return {
@@ -375,19 +373,17 @@ export function getHeaders(query = '', body = '', sign = false) {
 };
 
 function getGuid() {
-    function S4() {
-        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    }
+    function S4() { return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1); }
     return (S4() + S4() + '-' + S4() + '-' + S4() + '-' + S4() + '-' + S4() + S4() + S4());
-};
+}
 
 function getDsSign() {
-    const n = 'YVEIkzDFNHLeKXLxzqCA9TzxCpWwbIbk';
+    const n = 'Qqx8cyv7kuyD8fTw11SmvXSFHp7iZD29';
     const t = Math.round(new Date().getTime() / 1000);
     const r = lodash.sampleSize('abcdefghijklmnopqrstuvwxyz0123456789', 6).join('');
     const DS = md5(`salt=${n}&t=${t}&r=${r}`);
     return `${t},${r},${DS}`;
-};
+}
 
 function getDs(q = '', b = '') {
     let n = 'xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs'
@@ -395,7 +391,7 @@ function getDs(q = '', b = '') {
     let r = Math.floor(Math.random() * 900000 + 100000);
     let DS = md5(`salt=${n}&t=${t}&r=${r}&b=${b}&q=${q}`);
     return `${t},${r},${DS}`;
-};
+}
 
 
 interface CookieData {

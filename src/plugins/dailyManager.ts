@@ -1,16 +1,20 @@
 import fs from "fs";
-import { sleep } from "../lib/common";
+import { getLastestMsgId, sleep } from "../lib/common";
 import { render } from "../lib/render";
-import { IMessageDIRECT, sendImage } from "../lib/IMessageEx";
+import { IMessageDIRECT, sendMessage } from "../lib/IMessageEx";
 import { miGetDailyNote, miGetSignRewardHome, miGetSignRewardInfo, miPostSignRewardSign } from "../lib/mihoyoAPI";
 
 
 const pushDailyTime = 1000 * 60 * 60 * 10;
+const pushSignTime = 1000 * 60 * 60 * 24;
+
 
 export async function onceDaily(msg: IMessageDIRECT) {
 
     return getDailyImage(msg.author.id).then(imagePath => {
         if (imagePath) return msg.sendMsgEx({ imagePath });
+    }).then(() => {
+        return redis.hSet(`genshin:push:daily`, msg.author.id, new Date().getTime());
     }).catch(err => {
         log.error(err);
         return msg.sendMsgEx({ content: err });
@@ -133,14 +137,14 @@ export async function helpDaily(msg: IMessageDIRECT) {
 
 export async function changeDaily(msg: IMessageDIRECT) {
     if (/开/.test(msg.content))
-        return global.redis.hSet(`genshin:pushDaily`, msg.author.id, new Date().getTime()).then(() => {
+        return global.redis.hSet(`genshin:push:daily`, msg.author.id, new Date().getTime()).then(() => {
             return msg.sendMsgEx({ content: `已开启体力推送服务` });
         }).catch(err => {
             log.error(err);
         });
 
     if (/关/.test(msg.content))
-        return global.redis.hDel(`genshin:pushDaily`, msg.author.id).then(() => {
+        return global.redis.hDel(`genshin:push:daily`, msg.author.id).then(() => {
             return msg.sendMsgEx({ content: `已关闭体力推送服务` });
         }).catch(err => {
             log.error(err);
@@ -149,11 +153,11 @@ export async function changeDaily(msg: IMessageDIRECT) {
 }
 
 export async function taskPushDaily() {
-    log.mark(`体力推送检查中`);
+    log.mark(`体力推送开始`);
 
-    const msgId = await redis.get("lastestMsgId");
-    if (!msgId) return;
-    const pushUsers = await redis.hGetAll(`genshin:pushDaily`).catch(err => { return log.error(err) });
+    const msgId = await getLastestMsgId();
+    if (!msgId) return log.warn("无最新msgId");
+    const pushUsers = await redis.hGetAll(`genshin:push:daily`).catch(err => { return log.error(err); });
     if (!pushUsers) return;
 
     for (const userId in pushUsers) {
@@ -162,96 +166,91 @@ export async function taskPushDaily() {
         if (new Date().getTime() - Number(pushUsers[userId]) < pushDailyTime) continue;
         await getDailyImage(userId).then(imagePath => {
             if (!imagePath) throw "not generate";
-            return sendImage({ imagePath, guildId, sendType: "DIRECT", msgId });
+            return sendMessage({ imagePath, guildId, sendType: "DIRECT", msgId });
         }).then(() => {
-            return redis.hSet(`genshin:pushDaily`, userId, new Date().getTime());
+            return redis.hSet(`genshin:push:daily`, userId, new Date().getTime());
         }).catch(err => {
             log.error(err);
         });
         await sleep(500);
     }
-    log.mark(`体力推送检查完成`);
+
+    log.mark(`体力推送完成`);
 }
 
-/* export async function signOnce(msg?: IMessageDIRECT, task?: { uid: string; region: string; cookie: string; }) {
+export async function onceSign(msg: IMessageDIRECT) {
+    return getSignString(msg.author.id).then(info => {
+        return msg.sendMsgEx({ content: info });
+    }).catch(err => {
+        log.error(err);
+    });
+}
 
-    const uid = task?.uid || await global.redis.hGet(`genshin:config:${msg?.author.id}`, "uid");
-    const region = task?.region || await global.redis.hGet(`genshin:config:${msg?.author.id}`, "region");
-    const cookie = task?.cookie || await global.redis.hGet(`genshin:config:${msg?.author.id}`, "cookie");
+async function getSignString(aid: string): Promise<string> {
+    const uid = await global.redis.hGet(`genshin:config:${aid}`, "uid");
+    const region = await global.redis.hGet(`genshin:config:${aid}`, "region");
+    const cookie = await global.redis.hGet(`genshin:config:${aid}`, "cookie");
 
-    if (!(uid && region && cookie)) return;
-    const data = await miGetSignRewardInfo(uid, region, cookie);
-    if (!data) return true;
-    log.debug(data);
+    if (!uid || !region || !cookie) return "not found uid/region/cookie";
+    const signData = await miGetSignRewardInfo(uid, region, cookie).catch(err => {
+        log.error(err);
+        return `签到失败: 原因: ${JSON.stringify(err).replaceAll(".", " .")}`;
+    });
+    if (typeof signData == "string") return signData;
 
     const mouthInfo = await miGetSignRewardHome(uid, region, cookie).catch(err => {
         log.error(err);
-        msg?.sendMsgEx({ content: `获取当月奖励出错:\n${JSON.stringify(err)}` });
+        return `获取当月奖励出错:\n${JSON.stringify(err)}`;
     });
-    if (!mouthInfo) return;
+    if (typeof mouthInfo == "string") throw mouthInfo;
+
+    const rewardData = mouthInfo.awards[signData.total_sign_day - 1];
+    if (signData.is_sign) return `今天已签到\n第${signData.total_sign_day}天奖励：${rewardData.name}*${rewardData.cnt}`;
 
     const signInfo = await miPostSignRewardSign(uid, region, cookie).catch(err => {
         log.error(err);
-        msg?.sendMsgEx({ content: `签到失败，原因：\n${JSON.stringify(err)}` });
+        return `签到失败，原因：\n${JSON.stringify(err).replaceAll(".", " . ")}`;
     });
-    //if (!signInfo) return;
-    log.debug(mouthInfo.month, mouthInfo.awards[data.total_sign_day]);
-
-    return msg?.sendMsgEx({ content: `今天已签到`, }); //`今天已签到\n第${isSigned}天奖励：${reward}`, });
-
+    if (typeof signInfo == "string") return signInfo;
+    return `签到成功\n第${signData.total_sign_day}天奖励：${rewardData.name}*${rewardData.cnt}`;
 }
 
 export async function changeSign(msg: IMessageDIRECT) {
 
     const ststus = msg.content.includes("开") ? 1 : 0;
-    return global.redis.hSet(`genshin:config:${msg.author.id}`, "signPush", ststus).then(() => {
-        return signOnce(msg);
-    }).then(() => {
+    return global.redis.hSet(`genshin:push:sign`, msg.author.id, new Date().getTime()).then(() => {
         return msg.sendMsgEx({ content: `已${ststus ? "开启" : "关闭"}签到推送服务` });
+    }).then(() => {
+        return onceSign(msg);
     }).catch(err => {
         log.error(err);
     });
 }
 
 export async function taskPushSign() {
+    log.mark(`签到推送开始`);
 
-    log.mark(`签到推送准备中`);
-    const userConfigs: string[] = await global.redis.keys(`genshin:config:*`).catch(err => {
-        log.error(err);
-        return ([] as string[]);
-    });
-    if (userConfigs.length == 0) {
-        log.mark("签到推送失败：未找到任何用户设置信息");
-        return;
+    const msgId = await getLastestMsgId();
+    if (!msgId) return log.warn("无最新msgId");
+    const pushUsers = await redis.hGetAll(`genshin:push:sign`).catch(err => { log.error(err); });
+    if (!pushUsers) return;
+
+    for (const userId in pushUsers) {
+        const guildId = await redis.hGet(`genshin:config:${userId}`, "guildId");
+        if (!guildId) continue;
+        if (new Date().getTime() - Number(pushUsers[userId]) < pushSignTime) continue;
+        await getSignString(userId).then(content => {
+            return sendMessage({ content, guildId, sendType: "DIRECT", msgId });
+        }).then(() => {
+            return redis.hSet(`genshin:push:sign`, userId, new Date().getTime());
+        }).catch(err => {
+            log.error(err);
+        });
+        await sleep(500);
     }
 
-    const userInfos: { uid: string, guildId: string }[] = [];
-    const hGetQueue: Promise<void>[] = [];
-    for (const userConfig of userConfigs) {
-        hGetQueue.push(global.redis.hmGet(userConfig, ["signPush", "guildId"]).then(value => {
-            if ((value[0] == "1") && value[1]) userInfos.push({
-                uid: userConfig.match(/\d.* /)![0],
-                guildId: value[1],
-            });
-        }));
-    }
-    if (userInfos.length == 0) {
-        log.mark("签到推送失败：用户尚未启用推送");
-        return;
-    }
-    log.mark(`本次检查共有${userInfos.length}个用户使用签到推送`);
-
-    setInterval(() => {
-        signOnce
-    }, 10 * 1000);
-
-    var ttl = await global.redis.ttl("lastestMsgId");
-    while (ttl <= 60 * 4) {
-        await sleep(10);
-        ttl = await global.redis.ttl("lastestMsgId");
-    }
-
-} */
+    log.mark(`签到推送完成`);
+}
 
 function converTime(time: number) {
     var _d = 0, _h = 0, _m = 0, _s = 0;
@@ -276,12 +275,9 @@ function converTime(time: number) {
         } else {
             _m = time;
         }
-    } else {
-        return `不足一分钟`;
-    }
-    //log.debug(`${_d}d,${_h}h,${_m}m,${_s}s`);
+    } else return `不足一分钟`;
+
     return (_d > 0 ? `${_d}天` : ``) +
         (_h > 0 ? `${_h}时` : ``) +
-        (_m > 0 ? `${_m}分` : ``)/*  +
-        (_s > 0 ? `${_s}秒` : ``) */;
+        (_m > 0 ? `${_m}分` : ``);
 }

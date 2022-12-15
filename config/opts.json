@@ -104,26 +104,31 @@
                 "permission": "anyone",
                 "describe": "开关体力推送"
             },
+            "taskPushDaily": {
+                "reg": "^#全部体力推送$",
+                "fnc": "taskPushDaily",
+                "type": ["DIRECT"],
+                "describe": "进行一次全部体力推送"
+            },
             "signOnce": {
                 "reg": "^#签到$",
-                "fnc": "signOnce",
+                "fnc": "onceSign",
                 "type": ["DIRECT"],
                 "permission": "anyone",
                 "describe": "（未实现）当日米游社签到一次"
             },
-            "signCheck": {
+            "changeSign": {
                 "reg": "^#(开启签到推送|关闭签到推送)$",
-                "fnc": "signCheck",
+                "fnc": "changeSign",
                 "type": ["DIRECT"],
                 "permission": "anyone",
-                "describe": "（未实现）开启/关闭签到推送"
+                "describe": "开启/关闭签到推送"
             },
-            "signAuto": {
-                "reg": "^#(开启|关闭)(米游社|自动)*签到$",
-                "fnc": "signAuto",
+            "taskPushSign": {
+                "reg": "^#全部签到推送$",
+                "fnc": "taskPushSign",
                 "type": ["DIRECT"],
-                "permission": "anyone",
-                "describe": "（未实现）开启/关闭自动签到"
+                "describe": "进行一次全部签到推送"
             }
         },
         "ledger": {
