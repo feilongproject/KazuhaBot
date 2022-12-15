@@ -98,8 +98,8 @@ export async function sendMessage(option: Partial<SendMsgOption>, msg?: IMessage
     const msgId = option.msgId || msg?.id;
     const guildId = option.guildId || msg?.guild_id;
     const channelId = option.channelId || msg?.channel_id;
-    const { ref, imagePath, content } = option;
-
+    const { ref, imagePath } = option;
+    const content = `‌‌‍‌‏‌‏‌‌‏‌‍‌‌‏‍‍‍‏‍‌‏‍‍‌‏‌‍‍‌‏‌‍‌‏‍‍‍‏‌‍‍‍‏‌‏‍‌‍‌‏‍${option.content?.trim()}`;
     if (!imagePath) {
         const sendBody = { msg_id: msgId, content: content, message_reference: (ref && msgId) ? { message_id: msgId } : undefined };
         if (sendType == "GUILD") {

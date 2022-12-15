@@ -136,20 +136,12 @@ export async function helpDaily(msg: IMessageDIRECT) {
 }
 
 export async function changeDaily(msg: IMessageDIRECT) {
-    if (/开/.test(msg.content))
-        return global.redis.hSet(`genshin:push:daily`, msg.author.id, new Date().getTime()).then(() => {
-            return msg.sendMsgEx({ content: `已开启体力推送服务` });
-        }).catch(err => {
-            log.error(err);
-        });
-
-    if (/关/.test(msg.content))
-        return global.redis.hDel(`genshin:push:daily`, msg.author.id).then(() => {
-            return msg.sendMsgEx({ content: `已关闭体力推送服务` });
-        }).catch(err => {
-            log.error(err);
-        });
-
+    if (/开/.test(msg.content)) return global.redis.hSet(`genshin:push:daily`, msg.author.id, new Date().getTime()).then(() => {
+        return msg.sendMsgEx({ content: `已开启体力推送服务` });
+    }).catch(err => { log.error(err); });
+    else return global.redis.hDel(`genshin:push:daily`, msg.author.id).then(() => {
+        return msg.sendMsgEx({ content: `已关闭体力推送服务` });
+    }).catch(err => { log.error(err); });
 }
 
 export async function taskPushDaily() {
@@ -216,15 +208,12 @@ async function getSignString(aid: string): Promise<string> {
 }
 
 export async function changeSign(msg: IMessageDIRECT) {
-
-    const ststus = msg.content.includes("开") ? 1 : 0;
-    return global.redis.hSet(`genshin:push:sign`, msg.author.id, new Date().getTime()).then(() => {
-        return msg.sendMsgEx({ content: `已${ststus ? "开启" : "关闭"}签到推送服务` });
-    }).then(() => {
-        return onceSign(msg);
-    }).catch(err => {
-        log.error(err);
-    });
+    if (/开/.test(msg.content)) return redis.hSet(`genshin:push:sign`, msg.author.id, new Date().getTime()).then(() => {
+        return msg.sendMsgEx({ content: `已开启签到推送服务` });
+    }).then(() => { return onceSign(msg); }).catch(err => { log.error(err); });
+    else return redis.hDel(`genshin:push:sign`, msg.author.id).then(() => {
+        return msg.sendMsgEx({ content: `关闭签到推送服务` });
+    }).catch(err => { log.error(err); });
 }
 
 export async function taskPushSign() {
