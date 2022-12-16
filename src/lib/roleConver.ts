@@ -40,10 +40,11 @@ export function roleToElement(name: string): string | null {
     return null;
 }
 
-export function roleToTalent(name: string): { week: number, name: string; area: string; act: string[]; } | null {
-    for (const [index, material] of daily.roleMaterial.entries())
-        for (const roleName of material.act)
-            if (name == roleName) return Object.assign(material, { week: (index % 4) + 1 });
+export function roleToTalent(name: string): { week: number, name: string, area: string, act: string[] } | null {
+    for (const [i, materials] of daily.roleMaterial.entries())
+        for (const material of materials)
+            for (const roleName of material.act)
+                if (name == roleName) return Object.assign(material, { week: (i % 4) + 1 });
     return null;
 }
 
@@ -54,9 +55,9 @@ export function weekToTalent(week: number) {
         weapon: { name: string; area: string; act: string[]; }[],
     } = { role: [], weapon: [] };
     for (const [index, material] of daily.roleMaterial.entries())
-        if (index % 3 == week % 3) _talents.role.push(material);
+        if (index % 3 == week % 3) _talents.role.push(...material);
     for (const [index, material] of daily.weaponMaterial.entries())
-        if (index % 3 == week % 3) _talents.weapon.push(material);
+        if (index % 3 == week % 3) _talents.weapon.push(...material);
     return _talents;
 }
 

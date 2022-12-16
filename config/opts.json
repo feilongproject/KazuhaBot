@@ -150,38 +150,31 @@
         "roleCard": {
             "todayQuery": {
                 "reg": "^#(今日|今天|每日|我的)(素材|材料|天赋)$",
-                "fnc": "todayQuery",
+                "fnc": "todayTalent",
                 "type": ["GUILD", "DIRECT"],
                 "permission": "anyone",
                 "describe": "【#今日素材】查看今天可以刷什么角色的"
             },
-            "roleCard2": {
+            "roleCard": {
+                "reg": "^#(角色1?|查询|查询角色|角色查询|人物)$",
+                "fnc": "roleCard",
+                "type": ["GUILD", "DIRECT"],
+                "permission": "anyone",
+                "describe": "【#角色】展示原神角色数据，竖向"
+            },
+            "roleCardExplore": {
                 "reg": "^#(角色2|宝箱|成就|尘歌壶|家园|探索|探险|声望|探险度|探索度)$",
-                "fnc": "roleCard2",
+                "fnc": "roleCardExplore",
                 "type": ["GUILD", "DIRECT"],
                 "permission": "anyone",
                 "describe": "【#探索，#声望】展示原神角色大地图探险数据"
             },
-            "roleCard3": {
+            "roleCardTransverse": {
                 "reg": "^#(角色3|角色卡片)$",
-                "fnc": "roleCard3",
+                "fnc": "roleCardTransverse",
                 "type": ["GUILD", "DIRECT"],
                 "permission": "anyone",
                 "describe": "【#角色卡片】展示原神角色数据卡片，横向"
-            },
-            "roleCard1": {
-                "reg": "^#((角色|查询|查询角色|角色查询|人物)[\\+|＋]?([1|2|5][0-9]{8})?|([uid|UID]?[\\+|＋]?[1|2|5][0-9]{8}))$",
-                "fnc": "roleCard1",
-                "type": ["GUILD", "DIRECT"],
-                "permission": "anyone",
-                "describe": "【#角色，#104070461】展示原神角色数据，竖向"
-            },
-            "roleCardWeapon": {
-                "reg": "^#([五|四|5|4]星)?武器[信息|阵容|统计]?$",
-                "fnc": "roleCardWeapon",
-                "type": ["GUILD", "DIRECT"],
-                "permission": "anyone",
-                "describe": "【#武器】角色已装备武器列表"
             },
             "roleCardLife": {
                 "reg": "^#(五星|四星|5星|4星|命座|角色)(信息|阵容|统计)?$",
@@ -189,6 +182,13 @@
                 "type": ["GUILD", "DIRECT"],
                 "permission": "anyone",
                 "describe": "【#四星，#五星】角色列表"
+            },
+            "roleCardWeapon": {
+                "reg": "^#([五|四|5|4]星)?武器(信息|阵容|统计)?$",
+                "fnc": "roleCardWeapon",
+                "type": ["GUILD", "DIRECT"],
+                "permission": "anyone",
+                "describe": "【#武器】角色已装备武器列表"
             },
             "talentList": {
                 "reg": "^#(我的)?(技能|天赋|武器|角色|练度|五星|四星|5星|4星)(汇总|统计|列表)(force|五|四|5|4|星)?[ |0-9]*$",

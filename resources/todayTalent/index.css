@@ -319,7 +319,7 @@ body {
     border-radius: 100%;
 }
 .heart {
-    background-image: url(./心形.png);
+    background-image: url(../_img/icon/心形.png);
     background-size: 100%;
     background-repeat: no-repeat;
     background-position: center;

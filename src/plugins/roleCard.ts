@@ -3,7 +3,7 @@ import { render } from "../lib/render";
 import { IMessageDIRECT, IMessageGUILD } from "../lib/IMessageEx";
 import { getAuthorConfig, redisCache, sleep } from "../lib/common";
 //import { roleToElement, roleToTalent, shortName, weekToTalent } from "./roleConver";
-import { roleToElement, shortName, weekToTalent } from "../lib/roleConver";
+import { roleToElement, roleToTalent, shortName, weekToTalent } from "../lib/roleConver";
 import { miGetAvatarDetail, AvatarDetailData, Avatars, miGetRecordCharacters, miGetRecordIndex, OrganizedAvatar, RecordCharactersData } from "../lib/mihoyoAPI";
 
 const area: { [key: string]: number } = { 蒙德: 1, 璃月: 2, 雪山: 3, 稻妻: 4, 渊下宫: 5, 层岩巨渊: 6, 层岩地下: 7, 须弥: 8 };
@@ -355,31 +355,25 @@ export async function roleCardTransverse(msg: IMessageGUILD | IMessageDIRECT) {
 
 
 }
-/*
-export async function roleCardLife(msg: IMessageEx) {
-    // const cookie = await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
-    // const uid = await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
-    // const region = await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
-    const queryStar = /(四|4)/.test(msg.content) ? 4 : (/(五|5)/.test(msg.content) ? 5 : 0);
-    if (!cookie || !uid || !region) {
-        msg.sendMsgEx({ content: `尚未绑定cookie，无法查询` });
-        return true;
-    }
+
+export async function roleCardLife(msg: IMessageGUILD | IMessageDIRECT) {
+    const { uid, region, cookie } = await getAuthorConfig(msg.author.id, ["uid", "region", "cookie"]);
     const recordCharacter = await miGetRecordCharacters(uid, region, cookie);
     if (!recordCharacter) return;
 
-    var avatars: {
+    const queryStar = /(四|4)/.test(msg.content) ? 4 : (/(五|5)/.test(msg.content) ? 5 : 0);
+    const avatars: {
         constellationNum: number,
         star: number,
         name: string,
         skinUrl: string,
         lv: number,
         fetter: number,
-        weapon: { name: string, showName: string, lv: number, affixLv: number }
+        weapon: { name: string, showName: string, lv: number, affixLv: number },
     }[] = [];
 
-    for (const searchAvatar of recordCharacter.avatars) {
-        if (queryStar == 0 || (queryStar == searchAvatar.rarity))
+    for (const searchAvatar of recordCharacter.avatars)
+        if ((queryStar == 0) || (queryStar == searchAvatar.rarity))
             avatars.push({
                 constellationNum: searchAvatar.actived_constellation_num,
                 star: searchAvatar.rarity,
@@ -394,38 +388,26 @@ export async function roleCardLife(msg: IMessageEx) {
                     affixLv: searchAvatar.weapon.affix_level,
                 }
             });
-    }
 
-    render({
+    return render({
         app: "roleCardLife",
         saveId: msg.author.id,
-        data: {
-            uid,
-            avatars,
-        }
+        data: { uid, avatars },
     }).then(imgPath => {
-        if (imgPath) msg.sendMsgEx({ imagePath: imgPath });
-        else {
-            throw new Error("not found imgPath");
-        }
+        if (imgPath) return msg.sendMsgEx({ imagePath: imgPath });
+        else throw "not found imgPath";
     }).catch(err => {
         log.error(err);
     });
 
 }
 
-export async function roleCardWeapon(msg: IMessageEx) {
-    // const cookie = await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
-    // const uid = await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
-    // const region = await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
-    if (!cookie || !uid || !region) {
-        msg.sendMsgEx({ content: `尚未绑定cookie，无法查询` });
-        return true;
-    }
+export async function roleCardWeapon(msg: IMessageGUILD | IMessageDIRECT) {
+    const { uid, region, cookie } = await getAuthorConfig(msg.author.id, ["uid", "region", "cookie"]);
     const recordCharacter = await miGetRecordCharacters(uid, region, cookie);
     if (!recordCharacter) return;
 
-    var weapons: {
+    const weapons: {
         constellationNum: number,
         star: number,
         name: string,
@@ -435,8 +417,7 @@ export async function roleCardWeapon(msg: IMessageEx) {
         weapon: { name: string, showName: string, lv: number, affixLv: number, star: number }
     }[] = [];
 
-    for (const searchAvatar of recordCharacter.avatars) {
-
+    for (const searchAvatar of recordCharacter.avatars)
         weapons.push({
             constellationNum: searchAvatar.actived_constellation_num,
             star: searchAvatar.rarity,
@@ -452,48 +433,32 @@ export async function roleCardWeapon(msg: IMessageEx) {
                 star: searchAvatar.weapon.rarity,
             }
         });
-    }
+    weapons.sort((v1, v2) => v2.weapon.star - v1.weapon.star);
 
-    weapons = weapons.sort((v1, v2) => { return v2.weapon.star - v1.weapon.star });
-    render({
+    return render({
         app: "roleCardWeapon",
         saveId: msg.author.id,
-        data: {
-            uid,
-            weapons,
-        }
+        data: { uid, weapons },
     }).then(imgPath => {
-        if (imgPath) msg.sendMsgEx({ imagePath: imgPath });
-        else {
-            throw new Error("not found imgPath");
-        }
+        if (imgPath) return msg.sendMsgEx({ imagePath: imgPath });
+        else throw "not found imgPath";
     }).catch(err => {
         log.error(err);
     });
 
 }
 
-export async function talentList(msg: IMessageEx) {
+export async function talentList(msg: IMessageGUILD | IMessageDIRECT) {
 
-    // const cookie = await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
-    // const uid = await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
-    // const region = await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
-    const displayMode = /(角色|武器|练度)/.test(msg.content) ? "weapon" : "talent";
-    const queryStar = /(四|4)/.test(msg.content) ? 4 : (/(五|5)/.test(msg.content) ? 5 : 0);
-    if (!cookie || !uid || !region) {
-        msg.sendMsgEx({ content: `尚未绑定cookie，无法查询` });
-        return true;
-    }
-
-
-
-    const recordCharacter: RecordCharactersData | null = await miGetRecordCharacters(uid, region, cookie);
+    const { uid, region, cookie } = await getAuthorConfig(msg.author.id, ["uid", "region", "cookie"]);
+    const recordCharacter = await miGetRecordCharacters(uid, region, cookie);
     if (!recordCharacter) return;
 
     const searchAvatars: Avatars[] = [];
-    for (const avatar of recordCharacter.avatars) {
+    const displayMode = /(角色|武器|练度)/.test(msg.content) ? "weapon" : "talent";
+    const queryStar = /(四|4)/.test(msg.content) ? 4 : (/(五|5)/.test(msg.content) ? 5 : 0);
+    for (const avatar of recordCharacter.avatars)
         if (queryStar == 0 || (avatar.rarity == queryStar)) searchAvatars.push(avatar);
-    }
 
     const avatars: OrganizedAvatar[] = [];
     const avatarPart = lodash.chunk(searchAvatars, 10);
@@ -505,36 +470,30 @@ export async function talentList(msg: IMessageEx) {
         await sleep(500);
     }
 
-    render({
+    return render({
         app: "talentList",
         saveId: msg.author.id,
         data: {
             uid,
             avatars,
-            bgType: Math.ceil(Math.random() * 3),
-            //abbr: genshin.abbr,
             displayMode,
-            //isSelf: e.isSelf,
             nowWeek: new Date().getDay(),
+            bgType: Math.ceil(Math.random() * 3),
             talentNotice: `技能列表每12小时更新一次`,
+            //isSelf: e.isSelf,
+            //abbr: genshin.abbr,
         },
     }).then(imgPath => {
-        if (imgPath) msg.sendMsgEx({ imagePath: imgPath });
-        else {
-            throw new Error("not found imgPath");
-        }
+        if (imgPath) return msg.sendMsgEx({ imagePath: imgPath });
+        else throw "not found imgPath";
     }).catch(err => {
         log.error(err);
     });
-
 }
 
-export async function getCharacterInfo(uid: string, server: string, cookie: string, displayMode: "weapon" | "talent", avatar: Avatars): Promise<OrganizedAvatar> {
-    var detailRes: AvatarDetailData | null;
-    const cacheCharacterInfo = await redisCache("r", `cache:talent:${uid}`, `avatar:${avatar.id}`);
-    if (cacheCharacterInfo) detailRes = JSON.parse(cacheCharacterInfo);
-    else detailRes = await miGetAvatarDetail(uid, server, cookie, avatar);
 
+export async function getCharacterInfo(uid: string, server: string, cookie: string, displayMode: "weapon" | "talent", avatar: Avatars): Promise<OrganizedAvatar> {
+    const detailRes = await miGetAvatarDetail(uid, server, cookie, avatar);
     const skill = detailRes ? {
         a: detailRes.skill_list[0].level_current,
         e: detailRes.skill_list[1].level_current,
@@ -542,25 +501,17 @@ export async function getCharacterInfo(uid: string, server: string, cookie: stri
         q: detailRes.skill_list[2].level_current
     } : { a: -1, e: -1, q: -1 };
 
-    var weapon: {
-        name: string,
-        lv: number,
-        alv: number,
-        star: number,
-        icon: string,
-    } | null = null;
+    var weapon: { name: string, lv: number, alv: number, star: number, icon: string } | null = null;
     var talent: { week: number, name: string; area: string; act: string[]; } | null = null;
-    if (displayMode == "weapon") {
+    if (displayMode == "weapon")
         weapon = {
             name: shortName(avatar.weapon.name) || avatar.weapon.name,
             lv: avatar.weapon.level,
             alv: avatar.weapon.affix_level,
             star: avatar.weapon.rarity,
             icon: avatar.weapon.icon
-        }
-    } else if (displayMode == "talent") {
-        talent = roleToTalent(avatar.name);
-    }
+        };
+    else if (displayMode == "talent") talent = roleToTalent(avatar.name);
 
     return {
         star: avatar.rarity,
@@ -573,4 +524,4 @@ export async function getCharacterInfo(uid: string, server: string, cookie: stri
         weapon,
         talent
     };
-} */
+} 

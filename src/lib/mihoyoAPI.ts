@@ -88,6 +88,9 @@ export async function miGetRecordIndex(uid: string, region: string, cookie: stri
 }
 
 export async function miGetAvatarDetail(uid: string, server: string, cookie: string, avatar: Avatars): Promise<AvatarDetailData> {
+    const cacheCharacterInfo = await redisCache("r", `cache:talent:${uid}`, `avatar:${avatar.id}`);
+    if (cacheCharacterInfo) return JSON.parse(cacheCharacterInfo);
+
     const headers = getHeaders(`uid=${uid}&region=${server}&avatar_id=${avatar.id}`);
     headers.Cookie = cookie;
     return await fetch(`https://api-takumi.mihoyo.com/event/e20200928calculate/v1/sync/avatar/detail?` +
