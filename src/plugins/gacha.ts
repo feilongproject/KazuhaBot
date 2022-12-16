@@ -3,6 +3,7 @@ import { IMessageGUILD } from "../lib/IMessageEx";
 import role from "../../data/role.json";
 import weapon from "../../data/weapon.json";
 import gachaPool from "../../data/gachaPool.json";
+import { getAuthorConfig } from "../lib/common";
 
 //五星基础概率(0-10000)
 const chance5 = 60;
@@ -32,7 +33,7 @@ export async function gacha(msg: IMessageGUILD) {
     if (msg.content.indexOf("2") != -1) upType = 2;
     if (msg.content.indexOf("3") != -1) { upType = 3; type = "weapon"; }
 
-    var weaponBing = await global.redis.hGet(`genshin:config:${msg.author.id}`, "weaponBing") || undefined;
+    var weaponBing = await getAuthorConfig(msg.author.id, "weaponBing");
 
     global.redis.get(`genshin:gacha:${userId}`).then((_gachaData) => {
         if (_gachaData) {
@@ -115,32 +116,28 @@ export async function gacha(msg: IMessageGUILD) {
 export async function gachaWeaponBing(msg: IMessageGUILD) {
 
     const weapon = getNowPool(3).weapon5;
-    var configBing = await global.redis.hGet(`genshin:config:${msg.author.id}`, "weaponBing");
-
+    const configBing = await getAuthorConfig(msg.author.id, "weaponBing");
     switch (configBing) {
         case undefined:
         case null:
-            await global.redis.hSet(`genshin:config:${msg.author.id}`, "weaponBing", "0");
-            msg.sendMsgEx({
+            await redis.hSet(`genshin:config:${msg.author.id}`, "weaponBing", "0");
+            return msg.sendMsgEx({
                 content:
                     `定轨成功\n` +
                     `[√] ${weapon[0]}\n` +
                     `[  ] ${weapon[1]}`
             });
-            break;
         case "0":
-            await global.redis.hSet(`genshin:config:${msg.author.id}`, "weaponBing", "1");
-            msg.sendMsgEx({
+            await redis.hSet(`genshin:config:${msg.author.id}`, "weaponBing", "1");
+            return msg.sendMsgEx({
                 content:
                     `定轨成功\n` +
                     `[  ] ${weapon[0]}\n` +
                     `[√] ${weapon[1]}`
-            }); break;
+            });
         case "1":
-            await global.redis.hDel(`genshin:config:${msg.author.id}`, "weaponBing");
-            msg.sendMsgEx({ content: `定轨已取消` });
-            break;
-        case undefined:
+            await redis.hDel(`genshin:config:${msg.author.id}`, "weaponBing");
+            return msg.sendMsgEx({ content: `定轨已取消` });
     }
 }
 

@@ -36,7 +36,7 @@ export async function miGetUserGameRolesByCookie(cookie: string): Promise<Cookie
     });
 }
 
-export async function miGetUserFullInfo(cookie: string) {
+export async function miGetUserFullInfo(cookie: string): Promise<UserFullInfo> {
     return await fetch("https://bbs-api.mihoyo.com/user/wapi/getUserFullInfo?gids=2", {
         headers: {
             Cookie: cookie,
@@ -54,7 +54,7 @@ export async function miGetUserFullInfo(cookie: string) {
     });
 }
 
-export async function miGetDailyNote(uid: string, region: string, cookie: string) {
+export async function miGetDailyNote(uid: string, region: string, cookie: string): Promise<DailyNoteData> {
     const headers = getHeaders(`role_id=${uid}&server=${region}`);
     headers.Cookie = cookie;
     return await fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?role_id=${uid}&server=${region}`, {
@@ -87,7 +87,7 @@ export async function miGetRecordIndex(uid: string, region: string, cookie: stri
     });
 }
 
-export async function miGetAvatarDetail(uid: string, server: string, cookie: string, avatar: Avatars) {
+export async function miGetAvatarDetail(uid: string, server: string, cookie: string, avatar: Avatars): Promise<AvatarDetailData> {
     const headers = getHeaders(`uid=${uid}&region=${server}&avatar_id=${avatar.id}`);
     headers.Cookie = cookie;
     return await fetch(`https://api-takumi.mihoyo.com/event/e20200928calculate/v1/sync/avatar/detail?` +
@@ -105,7 +105,7 @@ export async function miGetAvatarDetail(uid: string, server: string, cookie: str
     });
 }
 
-export async function miGetAvatarSkills(uid: string, server: string, cookie: string, roleId: number) {
+export async function miGetAvatarSkills(uid: string, server: string, cookie: string, roleId: number): Promise<AvatarSkills> {
     const headers = getHeaders(`avatar_id=${roleId}`);
     headers.Cookie = cookie;
     return await fetch(`https://api-takumi.mihoyo.com/event/e20200928calculate/v1/avatarSkill/list?avatar_id=${roleId}`, {
@@ -134,7 +134,7 @@ export async function miGetAvatarCompute(uid: string, region: string, cookie: st
     });
 }
 
-export async function miGetRecordCharacters(uid: string, region: string, cookie: string): Promise<RecordCharactersData | null> {
+export async function miGetRecordCharacters(uid: string, region: string, cookie: string): Promise<RecordCharactersData> {
     const cacheCharacters = await redisCache("r", `cache:talent:${uid}`, `characters`);
     if (cacheCharacters) return JSON.parse(cacheCharacters);
 
@@ -155,7 +155,7 @@ export async function miGetRecordCharacters(uid: string, region: string, cookie:
     });
 }
 
-export async function miGetNewsList(type: number, pageSize = 10) {
+export async function miGetNewsList(type: number, pageSize = 10): Promise<PostList> {
     return fetch(`https://bbs-api.mihoyo.com/post/wapi/getNewsList?gids=2&page_size=${pageSize}&type=${type}`, {
         method: "GET",
         headers: { Referer: "https://bbs.mihoyo.com/" }
@@ -167,7 +167,7 @@ export async function miGetNewsList(type: number, pageSize = 10) {
     });
 }
 
-export async function miGetPostFull(postId: string) {
+export async function miGetPostFull(postId: string): Promise<PostFull> {
     return fetch(`https://bbs-api.mihoyo.com/post/wapi/getPostFull?gids=2&read=1&post_id=${postId}`, {
         method: "GET",
         headers: { Referer: "https://bbs.mihoyo.com/" }
@@ -179,7 +179,7 @@ export async function miGetPostFull(postId: string) {
     });
 }
 
-export async function miSearchPosts(keyword: string, gids = 2, size = 20) {
+export async function miSearchPosts(keyword: string, gids = 2, size = 20): Promise<PostSearch> {
     return fetch(`https://bbs-api.mihoyo.com/post/wapi/searchPosts?keyword=${keyword}&gids=${gids}&size=${size}`, {
         method: "GET",
         headers: { Referer: "https://bbs.mihoyo.com/" }
@@ -191,7 +191,7 @@ export async function miSearchPosts(keyword: string, gids = 2, size = 20) {
     });
 }
 
-export async function miGetEmoticon() {
+export async function miGetEmoticon(): Promise<Emoticon> {
     return fetch(`https://bbs-api-static.mihoyo.com/misc/api/emoticon_set?gids=2`).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<Emoticon>) => {
@@ -200,7 +200,7 @@ export async function miGetEmoticon() {
     });
 }
 
-export async function miGetSignRewardInfo(uid: string, region: string, cookie: string) {
+export async function miGetSignRewardInfo(uid: string, region: string, cookie: string): Promise<SignRewardInfo> {
     const headers = getHeaders(`act_id=e202009291139501&region=${region}&uid=${uid}`);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?act_id=e202009291139501&region=${region}&uid=${uid}`, {
@@ -214,7 +214,7 @@ export async function miGetSignRewardInfo(uid: string, region: string, cookie: s
     });
 }
 
-export async function miGetSignRewardHome(uid: string, region: string, cookie: string) {
+export async function miGetSignRewardHome(uid: string, region: string, cookie: string): Promise<SignRewardHome> {
     const headers = getHeaders(`act_id=e202009291139501&region=${region}&uid=${uid}`, ``, true);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/home?act_id=e202009291139501&region=${region}&uid=${uid}`, {
@@ -228,7 +228,7 @@ export async function miGetSignRewardHome(uid: string, region: string, cookie: s
     });
 }
 
-export async function miPostSignRewardSign(uid: string, region: string, cookie: string) {
+export async function miPostSignRewardSign(uid: string, region: string, cookie: string): Promise<SignRewardSign> {
     const headers = getHeaders(``, `{"act_id":"e202009291139501","region":"${region}","uid":"${uid}"}`, true);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign`, {
@@ -246,7 +246,7 @@ export async function miPostSignRewardSign(uid: string, region: string, cookie: 
 /* async function abyssAll(roleArr: Avatars[], uid: string, server: string, cookie: string) {
 
 
-    const headers = getHeaders(`role_id=${uid}&schedule_type=1&server=${server}`) as any;
+    const headers = getHeaders(`role_id=${uid}&schedule_type=1&server=${server}`) ;
     headers.Cookie = cookie;
 
     const resAbyss = await fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/spiralAbyss?` +
@@ -353,7 +353,7 @@ function getHeaders(query = '', body = '', sign = false): { [key: string]: strin
         'x-rpc-client_type': "5",
         "DS": getDs(query, body),
     }
-};
+}
 
 function getGuid() {
     function S4() { return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1); }
@@ -690,6 +690,7 @@ export interface RecordIndexData {
         active_day_number: number;
         achievement_number: number;
         anemoculus_number: number;
+        dendroculus_number: number;
         geoculus_number: number;
         avatar_number: number;
         way_point_number: number;

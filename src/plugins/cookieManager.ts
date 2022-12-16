@@ -1,3 +1,4 @@
+import { getAuthorConfig } from "../lib/common";
 import { IMessageDIRECT } from "../lib/IMessageEx";
 import { miGetUserGameRolesByCookie } from "../lib/mihoyoAPI";
 
@@ -45,17 +46,14 @@ export async function bingCookie(msg: IMessageDIRECT) {
 }
 
 export async function queryCookie(msg: IMessageDIRECT) {
-    return redis.hGet(`genshin:config:${msg.author.id}`, "cookie").then(cookie => {
-        if (cookie) {
-            msg.sendMsgEx({ content: `当前绑定的cookie:\n${cookie}` });
-        } else {
-            msg.sendMsgEx({ content: `未找到cookie` });
-        }
+    return getAuthorConfig(msg.author.id, "cookie").then(cookie => {
+        if (cookie) return msg.sendMsgEx({ content: `当前绑定的cookie:\n${cookie}` });
+        else return msg.sendMsgEx({ content: `未找到cookie` });
     });
 }
 
 export async function checkCookie(msg: IMessageDIRECT) {
-    return redis.hGet(`genshin:config:${msg.author.id}`, "cookie").then(async cookie => {
+    return getAuthorConfig(msg.author.id, "cookie").then(async cookie => {
         if (!cookie) return msg.sendMsgEx({ content: `未找到cookie` });
         return miGetUserGameRolesByCookie(cookie).then(data => {
             if (data) return msg.sendMsgEx({ content: `检查完成，cookie正确` });
@@ -69,11 +67,12 @@ export async function checkCookie(msg: IMessageDIRECT) {
 }
 
 export async function delCookie(msg: IMessageDIRECT) {
-    return redis.hGet(`genshin:config:${msg.author.id}`, "cookie").then(cookie => {
-        if (cookie) {
-            return redis.hDel(`genshin:config:${msg.author.id}`, "cookie").then(() => {
-                return msg.sendMsgEx({ content: `已删除当前cookie` });
-            });
-        } else return msg.sendMsgEx({ content: `未找到cookie，无法删除` });
+    return getAuthorConfig(msg.author.id, "cookie").then(cookie => {
+        if (cookie) return redis.hDel(`genshin:config:${msg.author.id}`, "cookie").then(() => {
+            return msg.sendMsgEx({ content: `已删除当前cookie` });
+        });
+        else return msg.sendMsgEx({ content: `未找到cookie，无法删除` });
+    }).catch(err => {
+        log.error(err);
     });
 }

@@ -12,7 +12,7 @@ export async function status(msg: IMessageDIRECT) {
 }
 
 export async function ping(msg: IMessageDIRECT) {
-    msg.sendMsgEx({ content: await global.redis.ping() });
+    return msg.sendMsgEx({ content: await global.redis.ping() });
 }
 
 

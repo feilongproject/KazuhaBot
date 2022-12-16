@@ -1,5 +1,5 @@
 import fs from "fs";
-import { getLastestMsgId, sleep } from "../lib/common";
+import { getAuthorConfig, getLastestMsgId, sleep } from "../lib/common";
 import { render } from "../lib/render";
 import { IMessageDIRECT, sendMessage } from "../lib/IMessageEx";
 import { miGetDailyNote, miGetSignRewardHome, miGetSignRewardInfo, miPostSignRewardSign } from "../lib/mihoyoAPI";
@@ -22,14 +22,10 @@ export async function onceDaily(msg: IMessageDIRECT) {
 }
 
 async function getDailyImage(aid: string) {
-    const miUid = await global.redis.hGet(`genshin:config:${aid}`, "uid");
-    const miRegion = await global.redis.hGet(`genshin:config:${aid}`, "region");
-    const cookie = await global.redis.hGet(`genshin:config:${aid}`, "cookie");
-    const template = await global.redis.hGet(`genshin:config:${aid}`, "template") || "default";
 
-    if (!miRegion || !miUid || !cookie) throw `未找到cookie，请绑定cookie!`;
+    const { uid, region, cookie, template } = await getAuthorConfig(aid, ["uid", "region", "cookie", { k: "template", d: "default" }]);
 
-    const data = await miGetDailyNote(miUid, miRegion, cookie).catch(err => {
+    const data = await miGetDailyNote(uid, region, cookie).catch(err => {
         return `获取信息出错，错误详情：\n${err}`;
     });
     if (!data || typeof data == "string") throw data;
@@ -94,7 +90,7 @@ async function getDailyImage(aid: string) {
         templateName: `template/${template}/index`,
         data: {
             template,
-            uid: miUid,
+            uid,
             resinTime,
             homeCoin,
             task,
@@ -119,7 +115,7 @@ export async function selectTemplate(msg: IMessageDIRECT) {
     } else {
         for (const t of templates) if (msg.content.includes(t)) template = t;
 
-        if (template) return await global.redis.hSet(`genshin:config:${msg.author.id}`, "template", template).then(() => {
+        if (template) return await redis.hSet(`genshin:config:${msg.author.id}`, "template", template).then(() => {
             return msg.sendMsgEx({ content: `已选择体力模板「${template}」` });
         });
         else return msg.sendMsgEx({ content: `未找到指定模板，可输入 【#体力模板列表】 查询当前支持的模板\n注意: 请区分大小写` });
@@ -147,15 +143,17 @@ export async function changeDaily(msg: IMessageDIRECT) {
 export async function taskPushDaily() {
     log.mark(`体力推送开始`);
 
-    const msgId = await getLastestMsgId();
-    if (!msgId) return log.warn("无最新msgId");
     const pushUsers = await redis.hGetAll(`genshin:push:daily`).catch(err => { return log.error(err); });
     if (!pushUsers) return;
 
     for (const userId in pushUsers) {
-        const guildId = await redis.hGet(`genshin:config:${userId}`, "guildId");
+        const guildId = await getAuthorConfig(userId, "guildId");
         if (!guildId) continue;
         if (new Date().getTime() - Number(pushUsers[userId]) < pushDailyTime) continue;
+
+        const msgId = await getLastestMsgId();
+        if (!msgId) return log.warn("无最新msgId");
+
         await getDailyImage(userId).then(imagePath => {
             if (!imagePath) throw "not generate";
             return sendMessage({ imagePath, guildId, sendType: "DIRECT", msgId });
@@ -179,11 +177,8 @@ export async function onceSign(msg: IMessageDIRECT) {
 }
 
 async function getSignString(aid: string): Promise<string> {
-    const uid = await global.redis.hGet(`genshin:config:${aid}`, "uid");
-    const region = await global.redis.hGet(`genshin:config:${aid}`, "region");
-    const cookie = await global.redis.hGet(`genshin:config:${aid}`, "cookie");
+    const { uid, region, cookie } = await getAuthorConfig(aid, ["uid", "region", "cookie"]);
 
-    if (!uid || !region || !cookie) return "not found uid/region/cookie";
     const signData = await miGetSignRewardInfo(uid, region, cookie).catch(err => {
         log.error(err);
         return `签到失败: 原因: ${JSON.stringify(err).replaceAll(".", " .")}`;
@@ -219,15 +214,17 @@ export async function changeSign(msg: IMessageDIRECT) {
 export async function taskPushSign() {
     log.mark(`签到推送开始`);
 
-    const msgId = await getLastestMsgId();
-    if (!msgId) return log.warn("无最新msgId");
     const pushUsers = await redis.hGetAll(`genshin:push:sign`).catch(err => { log.error(err); });
     if (!pushUsers) return;
 
     for (const userId in pushUsers) {
-        const guildId = await redis.hGet(`genshin:config:${userId}`, "guildId");
+        const guildId = await getAuthorConfig(userId, "guildId");
         if (!guildId) continue;
         if (new Date().getTime() - Number(pushUsers[userId]) < pushSignTime) continue;
+
+        const msgId = await getLastestMsgId();
+        if (!msgId) return log.warn("无最新msgId");
+
         await getSignString(userId).then(content => {
             return sendMessage({ content, guildId, sendType: "DIRECT", msgId });
         }).then(() => {

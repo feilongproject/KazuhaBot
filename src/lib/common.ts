@@ -92,7 +92,33 @@ export async function getLastestMsgId() {
     }).then(buff => {
         return buff.toString();
     }).catch(err => {
-        log.error(err);
+        if (devEnv) log.error(String(err).split("\n")[0]);
         return null;
     })
+}
+
+export async function getAuthorConfig(aid: string, keys: string): Promise<string | undefined>;
+export async function getAuthorConfig(aid: string, keys: (string | { k: string, r?: string, m?: boolean, d?: string })[]): Promise<{ [key: string]: string }>;
+export async function getAuthorConfig(aid: string, keys: string | (string | { k: string, r?: string, m?: boolean, d?: string })[]): Promise<{ [key: string]: string } | string | undefined> {
+    if (typeof keys == "string") return redis.hGet(`genshin:config:${aid}`, keys);
+
+    const ret: { [key: string]: string } = {};
+    const _keys: string[] = [];
+    const _re: string[] = [];
+    const _must: boolean[] = [];
+    const _def: (null | string)[] = [];
+    for (const key of keys) {
+        _keys.push(typeof key == "string" ? key : key.k);
+        _re.push(typeof key == "string" ? key : (key.r || key.k));
+        _must.push(typeof key == "string" ? true : (key.m || true));
+        _def.push(typeof key == "string" ? null : (key.d || null));
+    }
+    return redis.hmGet(`genshin:config:${aid}`, _keys).then(d => {
+        for (const [i, v] of d.entries()) {
+            if (!v && _must[i] && !_def[i]) throw `not found aid(${aid}) config: ${_keys[i]}`;
+            else if (_def[i]) ret[_re[i]] = _def[i]!;
+            else ret[_re[i]] = v;
+        }
+        return ret;
+    });
 }

@@ -1,18 +1,15 @@
 import { render } from "../lib/render";
 import { miGetLedgerMonthInfo } from "../lib/mihoyoAPI";
 import { IMessageDIRECT } from "../lib/IMessageEx";
+import { getAuthorConfig } from "../lib/common";
 
 
 const color = ["#597ea0", "#bd9a5a", "#7a6da7", "#d56565", "#70b2b4", "#73a9c6", "#739970"];
 
 export async function ledgerPart(msg: IMessageDIRECT) {
 
-    const monthArr = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].splice(new Date().getMonth(), 3);
-    const cookie = await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
-    const uid = await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
-    const region = await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
+    const { uid, region, cookie } = await getAuthorConfig(msg.author.id, ["uid", "region", "cookie"]);
 
-    if (!cookie || !uid || !region) return msg.sendMsgEx({ content: `尚未绑定cookie，无法查询` });
     if (!cookie.includes("cookie_token")) return msg.sendMsgEx({ content: "配置cookie不完整，不支持札记查询\n请退出米游社重新登录获取完整cookie" });
 
     var _month: string = msg.content.replace(/#|原石|月|札记/g, "");
@@ -26,6 +23,7 @@ export async function ledgerPart(msg: IMessageDIRECT) {
     const _m = _month.match(/\d{1,}/);
     if (_m) month = parseInt(_m[0]);
 
+    const monthArr = [11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].splice(new Date().getMonth(), 3);
     if (!monthArr.includes(month)) return msg.sendMsgEx({ content: "札记仅支持查询最近三个月的数据" });
 
     const ledgerData = await miGetLedgerMonthInfo(uid, region, cookie, month).catch(err => {
@@ -89,13 +87,9 @@ export async function ledgerPart(msg: IMessageDIRECT) {
 
 export async function ledgerCount(msg: IMessageDIRECT) {
 
-    const cookie = await global.redis.hGet(`genshin:config:${msg.author.id}`, "cookie");
-    const uid = await global.redis.hGet(`genshin:config:${msg.author.id}`, "uid");
-    const region = await global.redis.hGet(`genshin:config:${msg.author.id}`, "region");
+    const { uid, region, cookie } = await getAuthorConfig(msg.author.id, ["uid", "region", "cookie"]);
 
-    if (!cookie || !uid || !region) return msg.sendMsgEx({ content: `尚未绑定cookie，无法查询` });
     if (!cookie.includes("cookie_token")) return msg.sendMsgEx({ content: "配置cookie不完整，不支持札记查询\n请退出米游社重新登录获取完整cookie" });
-
 
     const nowMonth = new Date().getMonth();
     const primogems = {
