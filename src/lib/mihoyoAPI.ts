@@ -4,14 +4,34 @@ import fetch from "node-fetch";
 import { redisCache } from "./common";
 
 
-export async function miGetUserGameRolesByCookie(cookie: string): Promise<CookieData | null> {
+export async function miGetLedgerMonthInfo(uid: string, region: string, cookie: string, month: number): Promise<LedgerData> {
+    var cache = await global.redis.hGet(`cache:ledger:${uid}`, `m${month}`);
+    if (cache) return JSON.parse(cache);
+
+    const headers = getHeaders(`month=${month}&bind_uid=${uid}&bind_region=${region}`);
+    headers.Cookie = cookie;
+    return fetch(`https://hk4e-api.mihoyo.com/event/ys_ledger/monthInfo?month=${month}&bind_uid=${uid}&bind_region=${region}`, {
+        method: "GET",
+        headers,
+    }).then(res => {
+        return res.json();
+    }).then(async (json: MihoyoAPI<LedgerData>) => {
+        if (json.data) {
+            await global.redis.hSet(`cache:ledger:${uid}`, `m${month}`, JSON.stringify(json.data));
+            await global.redis.expire(`cache:ledger:${uid}`, 3600 * 24);
+            return json.data;
+        }
+        else throw json;
+    });
+}
+
+export async function miGetUserGameRolesByCookie(cookie: string): Promise<CookieData> {
     return fetch(`https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie?game_biz=hk4e_cn`, {
         headers: { Cookie: cookie }
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<CookieData>) => {
-        //log.debug(json)
-        if (json.retcode == 0) return json.data;
+        if (json.data) return json.data;
         else throw json;
     });
 }
@@ -29,49 +49,46 @@ export async function miGetUserFullInfo(cookie: string) {
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<UserFullInfo>) => {
-        //log.debug(json)
-        if (json.retcode == 0) return json.data;
+        if (json.data) return json.data;
         else throw json;
     });
 }
 
 export async function miGetDailyNote(uid: string, region: string, cookie: string) {
-    const headers = getHeaders(`role_id=${uid}&server=${region}`) as any;
+    const headers = getHeaders(`role_id=${uid}&server=${region}`);
     headers.Cookie = cookie;
     return await fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?role_id=${uid}&server=${region}`, {
         headers,
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<DailyNoteData>) => {
-        //log.debug(json);
-        if (json.retcode == 0) return json.data;
+        if (json.data) return json.data;
         else throw json;
     });
 }
 
-export async function miGetRecordIndex(uid: string, region: string, cookie: string): Promise<RecordIndexData | null> {
+export async function miGetRecordIndex(uid: string, region: string, cookie: string): Promise<RecordIndexData> {
     const cacheIndex = await redisCache("r", `cache:talent:${uid}`, "index");
     if (cacheIndex) return JSON.parse(cacheIndex);
-    const headers = getHeaders(`role_id=${uid}&server=${region}`) as any;
+
+    const headers = getHeaders(`role_id=${uid}&server=${region}`);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/index?role_id=${uid}&server=${region}`, {
         method: "GET",
         headers
     }).then(res => {
         return res.json();
-        //return res.json();
     }).then((json: MihoyoAPI<RecordIndexData>) => {
-        //log.debug(json);
-        if (json.retcode == 0) {
+        if (json.data) {
             redisCache("w", `cache:talent:${uid}`, "index", JSON.stringify(json.data), 3600 * 12);
             return json.data;
-        } else throw json;
+        }
+        else throw json;
     });
 }
 
 export async function miGetAvatarDetail(uid: string, server: string, cookie: string, avatar: Avatars) {
-
-    const headers = getHeaders(`uid=${uid}&region=${server}&avatar_id=${avatar.id}`) as any;
+    const headers = getHeaders(`uid=${uid}&region=${server}&avatar_id=${avatar.id}`);
     headers.Cookie = cookie;
     return await fetch(`https://api-takumi.mihoyo.com/event/e20200928calculate/v1/sync/avatar/detail?` +
         `uid=${uid}&region=${server}&avatar_id=${avatar.id}`, {
@@ -80,20 +97,16 @@ export async function miGetAvatarDetail(uid: string, server: string, cookie: str
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<AvatarDetailData>) => {
-        //log.debug(json);
         if (json.data) {
             redisCache("w", `cache:talent:${uid}`, `avatar:${avatar.id}`, JSON.stringify(json.data), 3600 * 12);
             return json.data;
         }
         else throw json;
-    }).catch(err => {
-        log.error(err);
-        return null;
     });
 }
 
 export async function miGetAvatarSkills(uid: string, server: string, cookie: string, roleId: number) {
-    const headers = getHeaders(`avatar_id=${roleId}`) as any;
+    const headers = getHeaders(`avatar_id=${roleId}`);
     headers.Cookie = cookie;
     return await fetch(`https://api-takumi.mihoyo.com/event/e20200928calculate/v1/avatarSkill/list?avatar_id=${roleId}`, {
         method: "GET",
@@ -101,18 +114,13 @@ export async function miGetAvatarSkills(uid: string, server: string, cookie: str
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<AvatarSkills>) => {
-        //log.debug(json);
         if (json.data) return json.data;
         else throw json;
-    }).catch(err => {
-        log.error(err);
-        return null;
     });
 }
 
-export async function miGetAvatarCompute(uid: string, region: string, cookie: string, body: string): Promise<AvatarCompute | null> {
-
-    const headers = getHeaders(``, body) as any;
+export async function miGetAvatarCompute(uid: string, region: string, cookie: string, body: string): Promise<AvatarCompute> {
+    const headers = getHeaders(``, body);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi.mihoyo.com/event/e20200928calculate/v2/compute`, {
         method: "POST",
@@ -121,21 +129,16 @@ export async function miGetAvatarCompute(uid: string, region: string, cookie: st
     }).then(res => {
         return res.json();
     }).then((json: MihoyoAPI<AvatarCompute>) => {
-        //log.debug(json);
-        if (json.retcode == 0) return json.data;
+        if (json.data) return json.data;
         else throw json;
-    }).catch(err => {
-        log.error(err);
-        return null;
     });
 }
 
 export async function miGetRecordCharacters(uid: string, region: string, cookie: string): Promise<RecordCharactersData | null> {
-
     const cacheCharacters = await redisCache("r", `cache:talent:${uid}`, `characters`);
     if (cacheCharacters) return JSON.parse(cacheCharacters);
 
-    const headers = getHeaders(``, `{"role_id":"${uid}","server":"${region}"}`) as any;
+    const headers = getHeaders(``, `{"role_id":"${uid}","server":"${region}"}`);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/character`, {
         method: "POST",
@@ -143,17 +146,12 @@ export async function miGetRecordCharacters(uid: string, region: string, cookie:
         headers
     }).then(res => {
         return res.json();
-        //return res.json();
     }).then((json: MihoyoAPI<RecordCharactersData>) => {
-        //log.debug(json);
-        if (json.retcode == 0) {
+        if (json.data) {
             redisCache("w", `cache:talent:${uid}`, "characters", JSON.stringify(json.data), 3600 * 12);
             return json.data;
         }
         else throw json;
-    }).catch(err => {
-        log.error(err);
-        return null;
     });
 }
 
@@ -165,10 +163,7 @@ export async function miGetNewsList(type: number, pageSize = 10) {
         return res.json();
     }).then((json: MihoyoAPI<PostList>) => {
         if (json.data) return json.data;
-        else throw new Error("not found data");
-    }).catch(err => {
-        log.error(err);
-        return null;
+        else throw json;
     });
 }
 
@@ -180,10 +175,7 @@ export async function miGetPostFull(postId: string) {
         return res.json();
     }).then((json: MihoyoAPI<PostFull>) => {
         if (json.data) return json.data;
-        else throw new Error("not found data");
-    }).catch(err => {
-        log.error(err);
-        return null;
+        else throw json;
     });
 }
 
@@ -196,11 +188,7 @@ export async function miSearchPosts(keyword: string, gids = 2, size = 20) {
     }).then((json: MihoyoAPI<PostSearch>) => {
         if (json.data) return json.data;
         else throw json;
-    }).catch(err => {
-        log.error(err);
-        return null;
     });
-
 }
 
 export async function miGetEmoticon() {
@@ -208,15 +196,12 @@ export async function miGetEmoticon() {
         return res.json();
     }).then((json: MihoyoAPI<Emoticon>) => {
         if (json.data) return json.data;
-        else throw new Error("not found data");
-    }).catch(err => {
-        log.error(err);
+        else throw json;
     });
 }
 
 export async function miGetSignRewardInfo(uid: string, region: string, cookie: string) {
-
-    const headers = getHeaders(`act_id=e202009291139501&region=${region}&uid=${uid}`) as any;
+    const headers = getHeaders(`act_id=e202009291139501&region=${region}&uid=${uid}`);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/info?act_id=e202009291139501&region=${region}&uid=${uid}`, {
         method: "GET",
@@ -230,8 +215,7 @@ export async function miGetSignRewardInfo(uid: string, region: string, cookie: s
 }
 
 export async function miGetSignRewardHome(uid: string, region: string, cookie: string) {
-
-    const headers = getHeaders(`act_id=e202009291139501&region=${region}&uid=${uid}`, ``, true) as any;
+    const headers = getHeaders(`act_id=e202009291139501&region=${region}&uid=${uid}`, ``, true);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/home?act_id=e202009291139501&region=${region}&uid=${uid}`, {
         method: "GET",
@@ -245,8 +229,7 @@ export async function miGetSignRewardHome(uid: string, region: string, cookie: s
 }
 
 export async function miPostSignRewardSign(uid: string, region: string, cookie: string) {
-
-    const headers = getHeaders(``, `{"act_id":"e202009291139501","region":"${region}","uid":"${uid}"}`, true) as any;
+    const headers = getHeaders(``, `{"act_id":"e202009291139501","region":"${region}","uid":"${uid}"}`, true);
     headers.Cookie = cookie;
     return fetch(`https://api-takumi.mihoyo.com/event/bbs_sign_reward/sign`, {
         method: "POST",
@@ -258,7 +241,7 @@ export async function miPostSignRewardSign(uid: string, region: string, cookie: 
         if (json.data) return json.data;
         else throw json;
     });
-}//SignRewardHome
+}
 
 /* async function abyssAll(roleArr: Avatars[], uid: string, server: string, cookie: string) {
 
@@ -349,11 +332,11 @@ export async function miPostSignRewardSign(uid: string, region: string, cookie: 
     };
 } */
 
-export function getHeaders(query = '', body = '', sign = false) {
+function getHeaders(query = '', body = '', sign = false): { [key: string]: string } {
     const device = `KazuhaBot-${md5(query).substring(0, 5)}`;
     if (sign) return {
         'x-rpc-app_version': '2.37.1',
-        'x-rpc-client_type': 5,
+        'x-rpc-client_type': "5",
         'x-rpc-device_id': getGuid(),
         'User-Agent': `Mozilla/5.0 (Linux; Android 12; ${device}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.73 Mobile Safari/537.36 miHoYoBBS/2.37.1`,
         'X-Requested-With': 'com.mihoyo.hyperion',
@@ -367,7 +350,7 @@ export function getHeaders(query = '', body = '', sign = false) {
     }
     else return {
         'x-rpc-app_version': '2.26.1',
-        'x-rpc-client_type': 5,
+        'x-rpc-client_type': "5",
         "DS": getDs(query, body),
     }
 };
@@ -393,6 +376,39 @@ function getDs(q = '', b = '') {
     return `${t},${r},${DS}`;
 }
 
+interface LedgerData {
+    uid: number;
+    region: string;
+    account_id: number;
+    nickname: string;
+    date: string;
+    month: number;
+    optional_month: number[];
+    data_month: number;
+    data_last_month: number;
+    day_data: {
+        current_primogems: number;
+        current_mora: number;
+        last_primogems: number;
+        last_mora: number;
+    };
+    month_data: {
+        current_primogems: number;
+        current_mora: number;
+        last_primogems: number;
+        last_mora: number;
+        current_primogems_level: number;
+        primogems_rate: number;
+        mora_rate: number;
+        group_by: {
+            action_id: number;
+            action: string;
+            num: number;
+            percent: number;
+        }[];
+    };
+    lantern: false;
+}
 
 interface CookieData {
     list: {

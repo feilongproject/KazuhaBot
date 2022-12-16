@@ -115,7 +115,7 @@
                 "fnc": "onceSign",
                 "type": ["DIRECT"],
                 "permission": "anyone",
-                "describe": "（未实现）当日米游社签到一次"
+                "describe": "当日米游社签到一次"
             },
             "changeSign": {
                 "reg": "^#(开启签到推送|关闭签到推送)$",
