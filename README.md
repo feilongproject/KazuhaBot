@@ -1,3 +1,5 @@
+# 注意: 版本正在重构中, 具体内容在`dev`分支中查看(学业繁忙, 更新时间暂定)
+
 # KazuhaBot（[Yunzai-Bot](https://github.com/Le-niao/Yunzai-Bot/) 的 qq 频道实现）
 > 声明：源项目以及本项目均采用 AGPL3.0 协议，请在使用时遵循此原则！
 
