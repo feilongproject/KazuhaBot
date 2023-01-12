@@ -111,11 +111,9 @@ export async function loadGuildTree(init = false) {
     global.saveGuildsTree = [];
     for (const guild of (await global.client.meApi.meGuilds()).data) {
         if (init) log.mark(`${guild.name}(${guild.id})`);
+        const channels = await global.client.channelApi.channels(guild.id).catch(err => { log.error(err); });
+        if (!channels) continue;
         var _guild: SaveChannel[] = [];
-        const channels = await global.client.channelApi.channels(guild.id).catch(err => {
-            log.error(err);
-            throw err;
-        });
         for (const channel of channels.data) {
             if (init) log.mark(`${guild.name}(${guild.id})-${channel.name}(${channel.id})-father:${channel.parent_id}`);
             _guild.push({ name: channel.name, id: channel.id });
