@@ -100,7 +100,7 @@ export async function init() {
 
     log.info(`初始化：正在创建client与ws`);
     global.client = createOpenAPI(config.initConfig);
-    global.ws = createWebsocket(config.initConfig);
+    global.ws = createWebsocket(config.initConfig as any);
 
     log.info(`初始化：正在创建频道树`);
     global.saveGuildsTree = [];
